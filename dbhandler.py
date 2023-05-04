@@ -23,7 +23,11 @@ class DatabaseHandler:
         # 
         self.cur = self.db_conn.cursor()
 
-    def get_data(self, date:datetime.date):
+    def getall(self, date:datetime.date):
         self.cur.execute(f"SELECT * FROM public.cavity_temp WHERE (timestamp > '{date.year}-{date.month}-{date.day}') AND (sensor >= 30) AND (sensor <= 56) ORDER BY timestamp")
-        self.fetched_data = self.cur.fetchall()
-        print(self.fetched_data)
+        fetched_data = self.cur.fetchall()
+        return fetched_data
+
+    def getsensor(self, date:datetime.date, sensoridx:int):
+        self.cur.execute(f"SELECT * FROM public.cavity_temp WHERE (timestamp > '{date.year}-{date.month}-{date.day}') AND (sensor = {sensoridx}) ORDER BY timestamp")
+        return self.cur.fetchall()
