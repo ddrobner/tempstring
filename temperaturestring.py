@@ -1,5 +1,6 @@
 from sensor import Sensor
 from dbhandler import DatabaseHandler
+import pandas as pd
 
 class TemperatureString:
     def __init__(self, start_date, end_date):
@@ -15,5 +16,8 @@ class TemperatureString:
             sensor_data = databasehandler.getsensor(start_date, s+sensor_offset)
             self.sensors.append(Sensor(s, sensor_data))
 
-    def getSensorDataByIndex(self, index:int):
+    def getSensorDataByIndex(self, index:int) -> pd.DataFrame:
         return self.sensors[index].data
+
+    def getStringData(self) -> list:
+        return [s.data for s in self.sensors]
