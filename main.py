@@ -1,16 +1,22 @@
 #!/usr/bin/python
 
-import sys
+import argparse
 
-from dbhandler import DatabaseHandler
-from sensor import Sensor
-from dateutil import parser
+from dateutil import parser as dateparse
+from temperaturestring import TemperatureString
 
-dbhandler = DatabaseHandler()
+# argparse setup
+parser = argparse.ArgumentParser(
+    prog="PSUP Temperature String Analysis",
+    description="Gets PSUP temperature string data and spits out plots"
+)
 
+parser.add_argument('-d', '--date-from')
+parser.add_argument('-D', '--date-to')
 
-# TODO: improve datetime handling, this is kind of lazy and a bit of a mess
-date_from = parser.parse(sys.argv[1])
-test_sensor = Sensor(30, dbhandler.getsensor(date_from, 30)) 
+args = parser.parse_args()
 
-print(test_sensor.data)
+# the none is a placeholder since at the moment using the end date is not implemented
+tmpstring = TemperatureString(args.date_from, None)
+
+print(tmpstring.getSensorDataByIndex(0))

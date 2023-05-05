@@ -7,6 +7,7 @@ class Sensor:
         self.tempdata =  pd.DataFrame(temperaturedata, columns=["Timestamp", "Sensor Index", "Temperature"])
         # going to convert timestamps to unix timestamps here
         self.tempdata["Timestamp"] = self.tempdata["Timestamp"].apply(datetime.timestamp)
+        self.tempdata["Sensor Index"] = self.tempdata["Sensor Index"].apply(lambda x: x-30)
     
     # getter method for whatever data the sensor has
     # plan to do something cooler in the future but right now just want to get things working
