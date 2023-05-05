@@ -1,6 +1,8 @@
 import pandas as pd
 from datetime import datetime 
 
+from dataprocessing import fill_blank_timestamps
+
 class Sensor:
     def __init__(self, index:int, temperaturedata):
         self.idx = index
@@ -8,8 +10,8 @@ class Sensor:
         # going to convert timestamps to unix timestamps here
         self.tempdata["Timestamp"] = self.tempdata["Timestamp"].apply(datetime.timestamp)
         self.tempdata["Sensor Index"] = self.tempdata["Sensor Index"].apply(lambda x: x-30)
+        self.tempdata = fill_blank_timestamps(self.tempdata)
 
-        # TODO: need to fill in blanks for when the detector was offline
     
     # getter method for whatever data the sensor has
     # plan to do something cooler in the future but right now just want to get things working
