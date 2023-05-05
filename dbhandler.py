@@ -2,8 +2,6 @@ import os
 from psycopg2 import connect
 import datetime
 
-
-
 class DatabaseHandler:
     def __init__(self):
         # database information from Mark
@@ -20,7 +18,6 @@ class DatabaseHandler:
         # autocommitting changes - should probably get rid of at some point
         self.db_conn.autocommit=True
 
-        # 
         self.cur = self.db_conn.cursor()
 
     def getall(self, date:datetime.date):
