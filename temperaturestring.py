@@ -15,7 +15,7 @@ class TemperatureString:
         # storing each sensor object in a list
         self.sensors = []
         for s in range(sensor_min, sensor_max+1):
-            sensor_data = databasehandler.getsensor(start_date, s+sensor_offset)
+            sensor_data = databasehandler.getsensor(start_date, end_date, s+sensor_offset)
             self.sensors.append(Sensor(s, sensor_data))
 
     def getSensorDataByIndex(self, index:int) -> pd.DataFrame:
