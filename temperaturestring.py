@@ -11,7 +11,7 @@ class TemperatureString:
         sensor_offset = 30
         # storing each sensor object in a list
         self.sensors = []
-        for s in range(sensor_min, sensor_max):
+        for s in range(sensor_min, sensor_max+1):
             sensor_data = databasehandler.getsensor(start_date, s+sensor_offset)
             self.sensors.append(Sensor(s, sensor_data))
 

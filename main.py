@@ -19,4 +19,4 @@ args = parser.parse_args()
 # the none is a placeholder since at the moment using the end date is not implemented
 tmpstring = TemperatureString(dateparse.parse(args.date_from), None)
 
-print(tmpstring.getSensorDataByIndex(1))
+print(tmpstring.getSensorDataByIndex(25))
