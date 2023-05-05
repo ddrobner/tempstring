@@ -11,5 +11,5 @@ class Plotting:
     def averagePlot(self, indices: list) -> None:
         fig, ax = plt.subplots(figsize=(20, 10))
         ax.plot(self.tempstring.getTimes().apply(datetime.fromtimestamp), self.tempstring.indicesMean(indices), color="black")
-        fig.savefig(f"plots/indicesMeanPlot_{self.date_from.date()}_{self.date_to.date()}_idx{indices[0]}-{indices[-1]}.png")
+        fig.savefig(f"plots/indicesMeanPlot_{self.date_from.date()}_{self.date_to.date()}_index[{indices[0]}-{indices[-1]}].png")
 
