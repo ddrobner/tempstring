@@ -4,7 +4,6 @@ import sys
 
 from dbhandler import DatabaseHandler
 from sensor import Sensor
-import datetime
 from dateutil import parser
 
 dbhandler = DatabaseHandler()
