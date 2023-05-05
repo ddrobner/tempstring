@@ -17,6 +17,6 @@ parser.add_argument('-D', '--date-to')
 args = parser.parse_args()
 
 # the none is a placeholder since at the moment using the end date is not implemented
-tmpstring = TemperatureString(args.date_from, None)
+tmpstring = TemperatureString(dateparse.parse(args.date_from), None)
 
-print(tmpstring.getSensorDataByIndex(0))
+print(tmpstring.getSensorDataByIndex(1))
