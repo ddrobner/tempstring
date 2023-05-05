@@ -3,7 +3,7 @@
 import argparse
 
 from dateutil import parser as dateparse
-from temperaturestring import TemperatureString
+from plotter import Plotting
 
 # argparse setup
 parser = argparse.ArgumentParser(
@@ -17,6 +17,6 @@ parser.add_argument('-D', '--date-to')
 args = parser.parse_args()
 
 # the none is a placeholder since at the moment using the end date is not implemented
-tmpstring = TemperatureString(dateparse.parse(args.date_from), None)
+plotter = Plotting(dateparse.parse(args.date_from), None)
 
-print(tmpstring.getSensorDataByIndex(25))
+plotter.averagePlot([0, 1, 2, 3, 4, 5, 6])
