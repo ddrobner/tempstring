@@ -1,6 +1,8 @@
 from sensor import Sensor
 from dbhandler import DatabaseHandler
+from copy import copy
 import pandas as pd
+import numpy as np
 
 class TemperatureString:
     def __init__(self, start_date, end_date):
@@ -21,3 +23,10 @@ class TemperatureString:
 
     def getStringData(self) -> list:
         return [s.data for s in self.sensors]
+
+    # computes the mean temperature for given indices over whatever period of time we are looking at
+    def indicesMean(self, indices:list) -> np.ndarray:
+        cur_data = copy(self.sensors[indices[0]].data)
+        for idx in indices[1:]:
+            cur_data +=  self.sensors[idx].data
+        return np.sum(cur_data["Temperature"])/len(cur_data["Temperature"])
