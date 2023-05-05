@@ -29,7 +29,7 @@ class TemperatureString:
         cur_data = copy(self.sensors[indices[0]].data)
         for idx in indices[1:]:
             cur_data +=  self.sensors[idx].data
-        return cur_data["Temperature"]/len(cur_data["Temperature"])
+        return cur_data["Temperature"]/len(indices)
 
     def getTimes(self):
         return self.sensors[0].data["Timestamp"]
