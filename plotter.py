@@ -17,3 +17,6 @@ class Plotting:
         plt.gcf().autofmt_xdate()
         fig.savefig(f"plots/indicesMeanPlot_{self.date_from.date()}_{self.date_to.date()}_index[{indices[0]}-{indices[-1]}].png")
 
+    def indexPlot(self, index: int) -> None:
+        fig, ax = plt.subplots(figzie=(20, 10))
+        ax.plot(self.tempstring.getTimes(map(lambda x: pd.Timestamp.strftime(x, "%Y-%m-%d %X"))), self.tempstring.getSensorDataByIndex(index), color="black")

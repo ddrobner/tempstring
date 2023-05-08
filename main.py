@@ -19,4 +19,5 @@ args = parser.parse_args()
 # the none is a placeholder since at the moment using the end date is not implemented
 plotter = Plotting(dateparse.parse(args.date_from), dateparse.parse(args.date_to))
 
-plotter.averagePlot([0, 1, 2, 3, 4, 5, 6])
+#plotter.averagePlot([0, 1, 2, 3, 4, 5, 6])
+plotter.indexPlot(0)

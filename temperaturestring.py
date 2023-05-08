@@ -27,9 +27,10 @@ class TemperatureString:
     # computes the mean temperature for given indices over whatever period of time we are looking at
     def indicesMean(self, indices:list) -> np.ndarray:
         cur_data = copy(self.sensors[indices[0]].data)
+        cur_data = cur_data.dropna()
         for idx in indices[1:]:
             cur_data["Temperature"] +=  self.sensors[idx].data["Temperature"]
-        return cur_data["Temperature"]/len(indices)
+        return (cur_data["Temperature"]/len(indices)).reindex_like(self.sensors[indices[0]].data["Temperature"])
 
     def getTimes(self):
         return self.sensors[0].data["Timestamp"]
