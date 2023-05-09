@@ -19,8 +19,8 @@ class Plotting:
 
     def indexPlot(self, index: int) -> None:
         fig, ax = plt.subplots(figsize=(20, 10))
-        print(self.tempstring.getSensorDataByIndex(index))
-        ax.scatter(self.tempstring.getTimes().map(lambda x: pd.Timestamp.strftime(x, "%Y-%m-%d %X")), self.tempstring.getSensorDataByIndex(index)["Temperature"], color="black")
+        ax.plot(self.tempstring.getTimes().map(lambda x: pd.Timestamp.strftime(x, "%Y-%m-%d %X")), self.tempstring.getSensorDataByIndex(index)["Temperature"], color="black")
         ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=15))
+        ax.set_ylim((11.5, 14))
         plt.gcf().autofmt_xdate()
         fig.savefig(f"plots/indexPlot_{self.date_from.date()}_{self.date_to.date()}_index[{index}].png")
