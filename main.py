@@ -18,5 +18,5 @@ args = parser.parse_args()
 
 plotter = Plotting(dateparse.parse(args.date_from), dateparse.parse(args.date_to))
 
-#plotter.averagePlot([0, 1, 2, 3, 4, 5, 6])
-plotter.indexPlot(0)
+plotter.compareIndexPlot([0, 1, 2, 3])
+plotter.indexPlot(1)

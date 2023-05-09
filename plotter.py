@@ -1,8 +1,11 @@
-from temperaturestring import TemperatureString
 import matplotlib.pyplot as plt
 import matplotlib.dates as pltdates
-from datetime import datetime
+import matplotlib.cm as cm
 import pandas as pd
+import numpy as np
+
+from datetime import datetime
+from temperaturestring import TemperatureString
 
 class Plotting:
     def __init__(self, date_from: datetime.date, date_to: datetime.date):
@@ -13,7 +16,7 @@ class Plotting:
     def averagePlot(self, indices: list) -> None:
         fig, ax = plt.subplots(figsize=(20, 10))
         ax.margins(x=0, y=0, tight=True)
-        ax.plot(self.tempstring.getTimes().map(lambda x: pd.Timestamp.strftime(x, '%Y-%m-%d %X')), self.tempstring.indicesMean(indices), color="black")
+        ax.plot(self.tempstring.getTimes(indices[0]).map(lambda x: pd.Timestamp.strftime(x, '%Y-%m-%d %X')), self.tempstring.indicesMean(indices), color="black")
         ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=15))
         plt.gcf().autofmt_xdate()
         fig.savefig(f"plots/indicesMeanPlot_{self.date_from.date()}_{self.date_to.date()}_index[{indices[0]}-{indices[-1]}].png")
@@ -21,8 +24,22 @@ class Plotting:
     def indexPlot(self, index: int) -> None:
         fig, ax = plt.subplots(figsize=(20, 10))
         ax.margins(x=0, y=0, tight=True)
-        ax.plot(self.tempstring.getTimes().map(lambda x: pd.Timestamp.strftime(x, "%Y-%m-%d %X")), self.tempstring.getSensorDataByIndex(index)["Temperature"], color="black")
+        ax.plot(self.tempstring.getTimes(index).map(lambda x: pd.Timestamp.strftime(x, "%Y-%m-%d %X")), self.tempstring.getSensorDataByIndex(index)["Temperature"], color="black")
         ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=15))
         ax.set_ylim((11.5, 14))
         plt.gcf().autofmt_xdate()
         fig.savefig(f"plots/indexPlot_{self.date_from.date()}_{self.date_to.date()}_index[{index}].png")
+    
+    def compareIndexPlot(self, indices:list) -> None:
+        fig, ax = plt.subplots(figsize=(20, 10))
+        ax.margins(x=0, y=0, tight=True)
+        color = iter(cm.rainbow((np.linspace(0, 1, len(indices)))))
+        for idx in indices:
+            c = next(color)
+            temperaturedata = np.resize(self.tempstring.getSensorDataByIndex(idx)["Temperature"].values, len(self.tempstring.getSensorDataByIndex(indices[0])["Temperature"]))
+            ax.plot(self.tempstring.getTimes(indices[0]).map(lambda x: pd.Timestamp.strftime(x, "%Y-%m-%d %X")), temperaturedata, label=str(idx), color=c)
+        ax.set_ylim(12, 14)
+        ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=15))
+        ax.legend(title="Sensor")
+        plt.gcf().autofmt_xdate()
+        fig.savefig(f"plots/compareIndexPlot_{self.date_from.date()}_{self.date_to.date()}_indices[{indices[0]}-{indices[-1]}].png")
