@@ -32,5 +32,5 @@ class TemperatureString:
             cur_data["Temperature"] +=  self.sensors[idx].data["Temperature"]
         return (cur_data["Temperature"]/len(indices)).reindex_like(self.sensors[indices[0]].data["Temperature"])
 
-    def getTimes(self):
-        return self.sensors[0].data["Timestamp"]
+    def getTimes(self, index):
+        return self.sensors[index].data["Timestamp"]
