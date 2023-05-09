@@ -12,15 +12,17 @@ class Plotting:
 
     def averagePlot(self, indices: list) -> None:
         fig, ax = plt.subplots(figsize=(20, 10))
+        ax.margins(x=0, y=0, tight=True)
         ax.plot(self.tempstring.getTimes().map(lambda x: pd.Timestamp.strftime(x, '%Y-%m-%d %X')), self.tempstring.indicesMean(indices), color="black")
         ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=15))
         plt.gcf().autofmt_xdate()
-        fig.savefig(f"plots/indicesMeanPlot_{self.date_from.date()}_{self.date_to.date()}_index[{indices[0]}-{indices[-1]}].png", bbox_inches='tight')
+        fig.savefig(f"plots/indicesMeanPlot_{self.date_from.date()}_{self.date_to.date()}_index[{indices[0]}-{indices[-1]}].png")
 
     def indexPlot(self, index: int) -> None:
         fig, ax = plt.subplots(figsize=(20, 10))
+        ax.margins(x=0, y=0, tight=True)
         ax.plot(self.tempstring.getTimes().map(lambda x: pd.Timestamp.strftime(x, "%Y-%m-%d %X")), self.tempstring.getSensorDataByIndex(index)["Temperature"], color="black")
         ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=15))
         ax.set_ylim((11.5, 14))
         plt.gcf().autofmt_xdate()
-        fig.savefig(f"plots/indexPlot_{self.date_from.date()}_{self.date_to.date()}_index[{index}].png", bbox_inches='tight')
+        fig.savefig(f"plots/indexPlot_{self.date_from.date()}_{self.date_to.date()}_index[{index}].png")
