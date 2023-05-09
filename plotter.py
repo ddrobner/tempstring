@@ -19,6 +19,7 @@ class Plotting:
         ax.set_title(f"Average Temperature Measured By Sensors {indices[0]}-{indices[-1]}")
         ax.margins(x=0, y=0, tight=True)
         ax.plot(self.tempstring.getTimes(indices[0]).map(lambda x: pd.Timestamp.strftime(x, '%Y-%m-%d %X')), self.tempstring.indicesMean(indices), color="black")
+        ax.set_ylim(12, 14)
         ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=15))
         plt.gcf().autofmt_xdate()
         ax.set_xlabel("Date and Time")

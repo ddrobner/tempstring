@@ -1,6 +1,7 @@
 from sensor import Sensor
 from dbhandler import DatabaseHandler
 from copy import copy
+from functools import reduce
 import pandas as pd
 import numpy as np
 
@@ -26,11 +27,10 @@ class TemperatureString:
 
     # computes the mean temperature for given indices over whatever period of time we are looking at
     def indicesMean(self, indices:list) -> np.ndarray:
-        cur_data = copy(self.sensors[indices[0]].data)
-        cur_data = cur_data.dropna()
+        cur_data = copy(self.sensors[0].data["Temperature"]).to_numpy()
         for idx in indices[1:]:
-            cur_data["Temperature"] +=  self.sensors[idx].data["Temperature"]
-        return (cur_data["Temperature"]/len(indices)).reindex_like(self.sensors[indices[0]].data["Temperature"])
+            cur_data += np.resize(self.sensors[idx].data["Temperature"].to_numpy(), len(cur_data))
+        return cur_data/len(indices)
 
     def getTimes(self, index):
         return self.sensors[index].data["Timestamp"]
