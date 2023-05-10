@@ -13,9 +13,9 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument('-d', '--date-from')
 parser.add_argument('-D', '--date-to')
-parser.add_argument('--average', help="Plot the average temperature for the given indices", default=None, nargs=2)
+parser.add_argument('--average', help="Plot the average temperature for the given indices", default=None, nargs=2, metavar=("INDEX_LOW", "INDEX_HIGH"))
 parser.add_argument('--index', help="Plot the temperature for a given index", default=None)
-parser.add_argument('--multiple-index', help="Plot multiple sensors in one plot", default=None, nargs=2)
+parser.add_argument('--multiple-index', help="Plot multiple sensors in one plot", default=None, nargs=2, metavar=("INDEX_LOW", "INDEX_HIGH"))
 
 args = parser.parse_args()
 
