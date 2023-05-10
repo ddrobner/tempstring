@@ -7,9 +7,9 @@ class Sensor:
     def __init__(self, index:int, temperaturedata):
         self.idx = index
         self.tempdata =  pd.DataFrame(temperaturedata, columns=["Timestamp", "Sensor Index", "Temperature"])
-        self.tempdata = fill_blank_timestamps(self.tempdata)
         # pandas has a timestamp column type, which will make it rather easy to fill missing timestamps
         self.tempdata["Timestamp"] = self.tempdata["Timestamp"].apply(pd.Timestamp)
+        self.tempdata = fill_blank_timestamps(self.tempdata)
         self.tempdata["Sensor Index"] = self.tempdata["Sensor Index"].apply(lambda x: x-30)
 
     
