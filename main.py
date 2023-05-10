@@ -22,11 +22,12 @@ args = parser.parse_args()
 plotter = Plotting(dateparse.parse(args.date_from), dateparse.parse(args.date_to))
 
 for k, v in vars(args).items():
-    if v:
-        match v:
-            case args.index:
-                plotter.indexPlot(int(args.index))
-            case args.multiple_index:
-                plotter.compareIndexPlot(list(range(int(args.multiple_index[0]), int(args.multiple_index[1])+1)))
-            case args.average:
-                plotter.averagePlot(list(range(int(args.average[0]), int(args.average[1])+1)))
+    match v:
+        case None:
+            pass
+        case args.index:
+            plotter.indexPlot(int(args.index))
+        case args.multiple_index:
+            plotter.compareIndexPlot(list(range(int(args.multiple_index[0]), int(args.multiple_index[1])+1)))
+        case args.average:
+            plotter.averagePlot(list(range(int(args.average[0]), int(args.average[1])+1)))
