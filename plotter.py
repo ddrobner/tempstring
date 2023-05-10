@@ -29,7 +29,7 @@ class Plotting:
 
     def indexPlot(self, index: int) -> None:
         fig, ax = plt.subplots(figsize=(20, 10))
-        ax.title(f"Temperature For Sensor {index}")
+        ax.set_title(f"Temperature For Sensor {index}")
         ax.margins(x=0, y=0, tight=True)
         ax.plot(self.tempstring.getTimes(index).map(lambda x: pd.Timestamp.strftime(x, "%Y-%m-%d %X")), self.tempstring.getSensorDataByIndex(index)["Temperature"], color="black")
         ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=15))
