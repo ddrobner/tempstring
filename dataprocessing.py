@@ -3,6 +3,15 @@ from copy import copy
 from numpy import zeros
 
 def fill_blank_timestamps(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """Fills missing timestamps for when the detector is online
+
+    Args:
+        dataframe (pd.DataFrame): The dataframe to fill 
+
+    Returns:
+        pd.DataFrame: The filled dataframe 
+    """
+
     # copying as to not modify the dataframe stored in the sensor object from this function, instead taking it as a return
     df = copy(dataframe)
     # going to generate a dataframe at the missing dates with all 0's for temperature data and merge the dataframes
