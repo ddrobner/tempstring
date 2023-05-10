@@ -11,6 +11,7 @@ parser = argparse.ArgumentParser(
     description="Gets PSUP temperature string data and spits out plots"
 )
 
+# self-explanatory
 parser.add_argument('-d', '--date-from')
 parser.add_argument('-D', '--date-to')
 parser.add_argument('--average', help="Plot the average temperature for the given indices", default=None, nargs=2, metavar=("INDEX_LOW", "INDEX_HIGH"))
@@ -21,6 +22,7 @@ args = parser.parse_args()
 
 plotter = Plotting(dateparse.parse(args.date_from), dateparse.parse(args.date_to))
 
+# control flow, iterates over the arguments and checks which we passed using a switch
 for k, v in vars(args).items():
     match v:
         case None:
