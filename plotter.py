@@ -8,6 +8,7 @@ from datetime import datetime
 from temperaturestring import TemperatureString
 
 # TODO find out how to uniformly set plot styling separate from each method 
+# TODO automatically set ylimit minimum and maximum properly
 class Plotting:
     """Module which handles all of the plotting of the data
     """
@@ -27,8 +28,8 @@ class Plotting:
         ax.margins(x=0, y=0.01, tight=True)
         temperaturedata = self.tempstring.indicesMean(indices)
         ax.plot(np.resize(self.tempstring.getTimes(indices[0]).map(lambda x: pd.Timestamp.strftime(x, '%Y-%m-%d %X')).to_numpy(), len(temperaturedata)), temperaturedata, color="black")
-        ax.set_ylim(bottom=11.5)
-        ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=15))
+        ax.set_ylim(bottom=12, top=13.4)
+        ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=25))
         plt.gcf().autofmt_xdate()
         ax.set_xlabel("Date and Time")
         ax.set_ylabel("Temperature (\u00B0C)")
