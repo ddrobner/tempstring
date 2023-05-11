@@ -7,6 +7,7 @@ import numpy as np
 import datetime
 
 from multiprocessing import Pool
+from multiprocessing import cpu_count
 
 def init_sensor(index, sensordata):
     return Sensor(index, sensordata)
@@ -26,20 +27,20 @@ class TemperatureString:
         # setting the minimum and maximum sensor ranges
         sensor_min = 0
         sensor_max = 25
+
         # first sensor index for the new PSUP string in the database is 30
         sensor_offset = 30
 
         sensordata = databasehandler.getall(start_date, end_date)
         df_sensordata =  pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
+        df_sensordata["Sensor Index"] = df_sensordata["Sensor Index"].apply(lambda x: x-sensor_offset) 
 
+        t_sensordata = (df_sensordata,)*(sensor_max - sensor_min)
         t_sensorids = tuple(range(sensor_min, sensor_max))
-        sensordata_split = []
-        for i in range(sensor_min, sensor_max+1):
-            sensordata_split.append(pd.DataFrame(df_sensordata[df_sensordata["Sensor Index"] == i+sensor_offset]).reset_index())
 
         # storing each sensor object in a list
-        with Pool() as p:
-            self.sensors = p.starmap(init_sensor, tuple(zip(t_sensorids, sensordata_split)))
+        with Pool(cpu_count()) as p:
+            self.sensors = p.starmap(init_sensor, tuple(zip(t_sensorids, t_sensordata)))
 
 
     def getSensorDataByIndex(self, index:int) -> pd.DataFrame:
