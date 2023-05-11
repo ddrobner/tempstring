@@ -81,9 +81,9 @@ class TemperatureString:
         Returns:
             np.ndarray: Array containing mean temperature at each time
         """
-        cur_data = self.sensors[0].data[self.sensors[0].data["Temperature"] != 0]["Temperature"].to_numpy(copy=True)
+        cur_data = self.sensors[0].data["Temperature"].to_numpy(copy=True)
         for idx in indices[1:]:
-            cur_data += np.resize(self.sensors[idx].data[self.sensors[idx].data["Temperature"] != 0]["Temperature"].to_numpy(), len(cur_data))
+            cur_data += np.resize(self.sensors[idx].data["Temperature"].to_numpy(), len(cur_data))
         # TODO figure out a better way to fill in the blank timestamps, have to do this again so as to not include zero-elements in averaging
         return fill_blank_timestamps(cur_data/len(indices))
 
