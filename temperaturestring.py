@@ -1,10 +1,16 @@
 from sensor import Sensor
 from dbhandler import DatabaseHandler
 from copy import copy
-from functools import reduce
+
 import pandas as pd
 import numpy as np
 import datetime
+
+from multiprocessing import Pool
+
+def init_sensor(index, sensordata):
+    return Sensor(index, sensordata)
+
 
 class TemperatureString:
     """An object encapsulating all of the sensors, to make interfacing with any number of them easier
@@ -22,11 +28,19 @@ class TemperatureString:
         sensor_max = 25
         # first sensor index for the new PSUP string in the database is 30
         sensor_offset = 30
+
+        sensordata = databasehandler.getall(start_date, end_date)
+        df_sensordata =  pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
+
+        t_sensorids = tuple(range(sensor_min, sensor_max))
+        sensordata_split = []
+        for i in range(sensor_min, sensor_max+1):
+            sensordata_split.append(pd.DataFrame(df_sensordata[df_sensordata["Sensor Index"] == i+sensor_offset]).reset_index())
+
         # storing each sensor object in a list
-        self.sensors = []
-        for s in range(sensor_min, sensor_max+1):
-            sensor_data = databasehandler.getsensor(start_date, end_date, s+sensor_offset)
-            self.sensors.append(Sensor(s, sensor_data))
+        with Pool() as p:
+            self.sensors = p.starmap(init_sensor, tuple(zip(t_sensorids, sensordata_split)))
+
 
     def getSensorDataByIndex(self, index:int) -> pd.DataFrame:
         """Gets sensor data for a specific sensor index
