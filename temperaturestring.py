@@ -85,7 +85,7 @@ class TemperatureString:
         for idx in indices[1:]:
             cur_data += np.resize(self.sensors[idx].data["Temperature"].to_numpy(), len(cur_data))
         # TODO figure out a better way to fill in the blank timestamps, have to do this again so as to not include zero-elements in averaging
-        return fill_blank_timestamps(cur_data/len(indices))
+        return cur_data/len(indices)
 
     def getTimes(self, index: int) -> pd.Series:
         """Gets the time data for a sensor
