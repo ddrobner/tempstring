@@ -15,7 +15,6 @@ class Plotting:
     def __init__(self, date_from: datetime.date, date_to: datetime.date):
         self.date_from = date_from
         self.date_to = date_to
-        self.tempstring = TemperatureString(date_from, date_to)
 
     def averagePlot(self, indices: list) -> None:
         """Plots the average temperature of a given list of sensor indices
@@ -23,6 +22,7 @@ class Plotting:
         Args:
             indices (list): List of sensor indices of which to plot the average
         """
+        self.tempstring = TemperatureString(self.date_from, self.date_to, min(indices), max(indices))
         fig, ax = plt.subplots(figsize=(20, 10))
         ax.set_title(f"Average Temperature Measured By Sensors {indices[0]}-{indices[-1]}")
         ax.margins(x=0, y=0.01, tight=True)
@@ -47,6 +47,7 @@ class Plotting:
         Args:
             index (int): Index of the sensor to plot
         """
+        self.tempstring = TemperatureString(self.date_from, self.date_to, index, index)
         fig, ax = plt.subplots(figsize=(20, 10))
         ax.set_title(f"Temperature For Sensor {index}")
         ax.margins(x=0, y=0, tight=True)
@@ -65,6 +66,7 @@ class Plotting:
         Args:
             indices (list): The list of sensor indices to plot
         """
+        self.tempstring = TemperatureString(self.date_from, self.date_to, min(indices), max(indices))
         fig, ax = plt.subplots(figsize=(20, 10))
         ax.margins(x=0, y=0.02, tight=True)
         color = iter(cm.tab20((np.linspace(0, 1, len(indices)))))

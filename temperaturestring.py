@@ -24,7 +24,7 @@ def init_sensor(index: int, sensordata:pd.DataFrame) -> Sensor:
 class TemperatureString:
     """An object encapsulating all of the sensors, to make interfacing with any number of them easier
     """
-    def __init__(self, start_date:datetime.date, end_date: datetime.date) -> None:
+    def __init__(self, start_date:datetime.date, end_date: datetime.date, sensor_min: int=0, sensor_max: int=25) -> None:
         """Constructor for TemperatureString
 
         Args:
@@ -33,8 +33,11 @@ class TemperatureString:
         """
         databasehandler = DatabaseHandler()
         # setting the minimum and maximum sensor ranges
-        sensor_min = 0
-        sensor_max = 25
+
+        self.sensormap = dict() 
+        sensor_range = list(range(sensor_min, sensor_max+1))
+        for i in range(0, (sensor_max - sensor_min)+1):
+            self.sensormap.update({sensor_range[i]:i})
 
         # first sensor index for the new PSUP string in the database is 30
         sensor_offset = 30
@@ -43,8 +46,8 @@ class TemperatureString:
         df_sensordata =  pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
         df_sensordata["Sensor Index"] = df_sensordata["Sensor Index"].apply(lambda x: x-sensor_offset) 
 
-        t_sensordata = (df_sensordata,)*(sensor_max - sensor_min)
-        t_sensorids = tuple(range(sensor_min, sensor_max))
+        t_sensordata = (df_sensordata,)*(sensor_max + (1 - sensor_min))
+        t_sensorids = tuple(range(sensor_min, sensor_max+1))
 
         # storing each sensor object in a list
         with Pool(cpu_count()) as p:
@@ -60,7 +63,7 @@ class TemperatureString:
         Returns:
             pd.DataFrame: Dataframe containing the sensor data
         """
-        return self.sensors[index].data
+        return self.sensors[self.sensormap[index]].data
 
     def getStringData(self) -> list:
         """Gets data for the whole TemperatureString
@@ -82,7 +85,7 @@ class TemperatureString:
         """
         cur_data = self.sensors[0].data["Temperature"].to_numpy(copy=True)
         for idx in indices[1:]:
-            cur_data += np.resize(self.sensors[idx].data["Temperature"].to_numpy(), len(cur_data))
+            cur_data += np.resize(self.sensors[self.sensormap[idx]].data["Temperature"].to_numpy(), len(cur_data))
         # TODO figure out a better way to fill in the blank timestamps, have to do this again so as to not include zero-elements in averaging
         return np.divide(cur_data,len(indices))
 
@@ -95,4 +98,4 @@ class TemperatureString:
         Returns:
             pd.Series: A series containing time data for the sensor
         """
-        return self.sensors[index].data["Timestamp"]
+        return self.sensors[self.sensormap[index]].data["Timestamp"]
