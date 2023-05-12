@@ -27,8 +27,8 @@ class Plotting:
         ax.set_title(f"Average Temperature Measured By Sensors {indices[0]}-{indices[-1]}")
         ax.margins(x=0, y=0.01, tight=True)
         temperaturedata = self.tempstring.indicesMean(indices)
+        ax.set_ylim(bottom=min(temperaturedata[temperaturedata > 10]), top=max(temperaturedata))
         ax.plot(np.resize(self.tempstring.getTimes(indices[0]).map(lambda x: pd.Timestamp.strftime(x, '%Y-%m-%d %X')).to_numpy(), len(temperaturedata)), temperaturedata, color="black")
-        ax.set_ylim(bottom=12, top=13.4)
         ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=25))
         plt.gcf().autofmt_xdate()
         ax.set_xlabel("Date and Time")
@@ -44,9 +44,10 @@ class Plotting:
         fig, ax = plt.subplots(figsize=(20, 10))
         ax.set_title(f"Temperature For Sensor {index}")
         ax.margins(x=0, y=0, tight=True)
-        ax.plot(self.tempstring.getTimes(index).map(lambda x: pd.Timestamp.strftime(x, "%Y-%m-%d %X")), self.tempstring.getSensorDataByIndex(index)["Temperature"], color="black")
+        plotdata = self.tempstring.getSensorDataByIndex(index)["Temperature"]
+        ax.plot(self.tempstring.getTimes(index).map(lambda x: pd.Timestamp.strftime(x, "%Y-%m-%d %X")), plotdata, color="black")
         ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=15))
-        ax.set_ylim(bottom=11)
+        ax.set_ylim(bottom=plotdata[plotdata != 0].min()-0.1, top=plotdata.max()+0.1)
         ax.set_xlabel("Date and Time")
         ax.set_ylabel("Temperature (\u00B0C)")
         plt.gcf().autofmt_xdate()
@@ -61,12 +62,20 @@ class Plotting:
         fig, ax = plt.subplots(figsize=(20, 10))
         ax.margins(x=0, y=0.02, tight=True)
         color = iter(cm.tab20((np.linspace(0, 1, len(indices)))))
+        # initializing these as infinities so the first iteration is always the current min/max
+        # very much a math person thing to do lol
+        absmin = np.Inf
+        absmax = -1*np.Inf
         for idx in indices:
             c = next(color)
             temperaturedata = np.resize(self.tempstring.getSensorDataByIndex(idx)["Temperature"].values, len(self.tempstring.getSensorDataByIndex(indices[0])["Temperature"]))
+            cmin = temperaturedata[temperaturedata != 0].min()
+            cmax = temperaturedata.max() 
+            absmin = cmin if (cmin < absmin) else absmin
+            absmax = cmax if (cmax > absmax) else absmax
             ax.plot(self.tempstring.getTimes(indices[0]).map(lambda x: pd.Timestamp.strftime(x, "%Y-%m-%d %X")), temperaturedata, label=str(idx), color=c)
         ax.set_title(f"Temperature Data for Sensors {indices[0]}-{indices[-1]}")
-        ax.set_ylim(bottom=11.5)
+        ax.set_ylim(bottom=(absmin - 0.1), top=(absmax + 0.1))
         ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=15))
         ax.legend(title="Sensor")
         ax.set_xlabel("Date and Time")
