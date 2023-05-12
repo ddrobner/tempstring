@@ -7,7 +7,6 @@ import datetime
 
 from multiprocessing import Pool
 from multiprocessing import cpu_count
-from dataprocessing import fill_blank_timestamps
 
 def init_sensor(index: int, sensordata:pd.DataFrame) -> Sensor:
     """Helper function to initialize a Sensor, for use with multiprocessing Pool
