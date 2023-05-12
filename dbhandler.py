@@ -38,7 +38,7 @@ class DatabaseHandler:
         Returns:
             list: List containing the fetched data from the SQL server
         """
-        self.cur.execute(f"SELECT * FROM public.cavity_temp WHERE (timestamp > '{date_from.year}-{date_from.month}-{date_from.day}') AND (timestamp < '{date_to.year}-{date_to.month}-{date_to.day}') AND (sensor >= 30) AND (sensor <= 56) ORDER BY timestamp")
+        self.cur.execute(f"SELECT * FROM public.cavity_temp WHERE (timestamp >= '{date_from.year}-{date_from.month}-{date_from.day}') AND (timestamp <= '{date_to.year}-{date_to.month}-{date_to.day}') AND (sensor >= 30) AND (sensor <= 56) ORDER BY timestamp")
         fetched_data = self.cur.fetchall()
         return fetched_data
 
@@ -54,5 +54,5 @@ class DatabaseHandler:
         Returns:
             list: Fetched data for the sensor
         """
-        self.cur.execute(f"SELECT * FROM public.cavity_temp WHERE (timestamp > '{date_from.year}-{date_from.month}-{date_from.day}') AND (timestamp < '{date_to.year}-{date_to.month}-{date_to.day}') AND (sensor = {sensoridx}) ORDER BY timestamp")
+        self.cur.execute(f"SELECT * FROM public.cavity_temp WHERE (timestamp >= '{date_from.year}-{date_from.month}-{date_from.day}') AND (timestamp <= '{date_to.year}-{date_to.month}-{date_to.day}') AND (sensor = {sensoridx}) ORDER BY timestamp")
         return self.cur.fetchall()
