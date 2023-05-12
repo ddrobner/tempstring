@@ -71,6 +71,7 @@ class Plotting:
         self.tempstring = TemperatureString(self.date_from, self.date_to, min(indices), max(indices))
         fig, ax = plt.subplots(figsize=(20, 10))
         ax.margins(x=0, y=0.02, tight=True)
+        box = ax.get_position()
         color = iter(cm.tab20((np.linspace(0, 1, len(indices)))))
         # initializing these as infinities so the first iteration is always the current min/max
         # very much a math person thing to do lol
@@ -91,7 +92,8 @@ class Plotting:
         ax.set_title(f"Temperature Data for Sensors {indices[0]}-{indices[-1]}")
         ax.set_ylim(bottom=(absmin - 0.1), top=(absmax + 0.1))
         ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=15))
-        ax.legend(title="Sensor")
+        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title="Sensor")
+        #ax.legend(title="Sensor")
         ax.set_xlabel("Date and Time")
         ax.set_ylabel("Temperature (\u00B0C)")
         plt.gcf().autofmt_xdate()
