@@ -81,7 +81,7 @@ class Plotting:
         with Pool(cpu_count()) as p:
             shaped_data = p.starmap(np.resize, zip(l_sensordata, l_reshapelength))
         for d in shaped_data:
-            cmin = d.min()
+            cmin = d[d != 0].min()
             cmax = d.max()
             absmin = cmin if (cmin < absmin) else absmin
             absmax = cmax if (cmax > absmax) else absmax
