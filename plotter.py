@@ -6,6 +6,8 @@ import numpy as np
 
 from datetime import datetime
 from temperaturestring import TemperatureString
+from multiprocessing import Pool
+from multiprocessing import cpu_count
 
 # TODO find out how to uniformly set plot styling separate from each method 
 # TODO automatically set ylimit minimum and maximum properly
@@ -74,14 +76,18 @@ class Plotting:
         # very much a math person thing to do lol
         absmin = np.Inf
         absmax = -1*np.Inf
-        for idx in indices:
-            c = next(color)
-            temperaturedata = np.resize(self.tempstring.getSensorDataByIndex(idx)["Temperature"].values, len(self.tempstring.getSensorDataByIndex(indices[0])["Temperature"]))
-            cmin = temperaturedata[temperaturedata != 0].min()
-            cmax = temperaturedata.max() 
+        l_sensordata = [self.tempstring.getSensorDataByIndex(k)["Temperature"].values for k in indices]
+        l_reshapelength = (len(self.tempstring.getSensorDataByIndex(indices[0])["Temperature"]),)*len(l_sensordata)
+        with Pool(cpu_count()) as p:
+            shaped_data = p.starmap(np.resize, zip(l_sensordata, l_reshapelength))
+        for d in shaped_data:
+            cmin = d.min()
+            cmax = d.max()
             absmin = cmin if (cmin < absmin) else absmin
             absmax = cmax if (cmax > absmax) else absmax
-            ax.plot(self.tempstring.getTimes(indices[0]).map(lambda x: pd.Timestamp.strftime(x, "%Y-%m-%d %X")), temperaturedata, label=str(idx), color=c)
+        for idx in range(len(shaped_data)):
+            c = next(color)
+            ax.plot(self.tempstring.getTimes(indices[0]).map(lambda x: pd.Timestamp.strftime(x, "%Y-%m-%d %X")), shaped_data[idx], label=str(idx), color=c)
         ax.set_title(f"Temperature Data for Sensors {indices[0]}-{indices[-1]}")
         ax.set_ylim(bottom=(absmin - 0.1), top=(absmax + 0.1))
         ax.xaxis.set_major_locator(pltdates.MonthLocator(interval=15))
