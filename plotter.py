@@ -96,8 +96,6 @@ class Plotting:
         self.tempstring = TemperatureString(min(indices), max(indices))
         fig, ax = plt.subplots(figsize=(12, 10))
         ax.grid()
-        #plt.rc('font', **self.font)
-        #plt.rcParams.update(self.params)
         plt.rcParams['font.size'] = 18
         ax.margins(x=0, y=0.02, tight=True)
         box = ax.get_position()
