@@ -25,7 +25,7 @@ def init_sensor(index: int, sensordata:pd.DataFrame) -> Sensor:
 class TemperatureString:
     """An object encapsulating all of the sensors, to make interfacing with any number of them easier
     """
-    def __init__(self) -> None:
+    def __init__(self, old: bool=False, old_indices: list=[]) -> None:
         """Constructor for TemperatureString
 
         Args:
@@ -34,25 +34,36 @@ class TemperatureString:
         """
         databasehandler = DatabaseHandler()
         # setting the minimum and maximum sensor ranges
-
-        self.sensormap = dict() 
-        sensor_range = list(range(globals.sensor_min, globals.sensor_max+1))
-        for i in range(0, (globals.sensor_max - globals.sensor_min)+1):
-            self.sensormap.update({sensor_range[i]:i})
-
-        # first sensor index for the new PSUP string in the database is 30
         sensor_offset = 30 if not globals.oldstring else 0
 
-        sensordata = databasehandler.getall(globals.date_from, globals.date_to)
-        df_sensordata =  pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
-        df_sensordata["Sensor Index"] = df_sensordata["Sensor Index"].apply(lambda x: x-sensor_offset) 
+        if old:
+            self.sensors = []
+            self.sensormap = dict()
+            c = 0
+            for i in old_indices:
+                tempdata = databasehandler.getsensor(globals.date_from, globals.date_to, i)
+                df_data = pd.DataFrame(tempdata, columns=["Timestamp", "Sensor Index", "Temperature"])
+                self.sensors.append(Sensor(i, df_data))
+                self.sensormap.update({i:c})
+                c += 1
+        else:
+            self.sensormap = dict() 
+            sensor_range = list(range(globals.sensor_min, globals.sensor_max+1))
+            for i in range(0, (globals.sensor_max - globals.sensor_min)+1):
+                self.sensormap.update({sensor_range[i]:i})
 
-        t_sensordata = (df_sensordata,)*(globals.sensor_max + (1 - globals.sensor_min))
-        t_sensorids = tuple(range(globals.sensor_min, globals.sensor_max+1))
+            # first sensor index for the new PSUP string in the database is 30
 
-        # storing each sensor object in a list
-        with Pool(cpu_count()) as p:
-            self.sensors = p.starmap(init_sensor, tuple(zip(t_sensorids, t_sensordata)))
+            sensordata = databasehandler.getall(globals.date_from, globals.date_to)
+            df_sensordata =  pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
+            df_sensordata["Sensor Index"] = df_sensordata["Sensor Index"].apply(lambda x: x-sensor_offset) 
+
+            t_sensordata = (df_sensordata,)*(globals.sensor_max + (1 - globals.sensor_min))
+            t_sensorids = tuple(range(globals.sensor_min, globals.sensor_max+1))
+
+            # storing each sensor object in a list
+            with Pool(cpu_count()) as p:
+                self.sensors = p.starmap(init_sensor, tuple(zip(t_sensorids, t_sensordata)))
 
 
     def getSensorDataByIndex(self, index:int) -> pd.DataFrame:
@@ -84,11 +95,21 @@ class TemperatureString:
         Returns:
             np.ndarray: Array containing mean temperature at each time
         """
-        cur_data = self.sensors[0].data["Temperature"].to_numpy(copy=True)
+        print(self.sensors)
+        cur_data = self.sensors[self.sensormap[0]].data["Temperature"].to_numpy(copy=True)
         for idx in indices[1:]:
             cur_data += np.resize(self.sensors[self.sensormap[idx]].data["Temperature"].to_numpy(), len(cur_data))
         # TODO figure out a better way to fill in the blank timestamps, have to do this again so as to not include zero-elements in averaging
         return np.divide(cur_data,len(indices))
+
+    def badMean(self, indices:list) -> np.ndarray:
+        cur_data = self.sensors[0].data["Temperature"].to_numpy(copy=True)
+        for idx in range(1, len(indices[1:])+1):
+            cur_data += np.resize(self.sensors[idx].data["Temperature"].to_numpy(), len(cur_data))
+        return np.divide(cur_data, len(indices)) 
+
+    def badGetTimes(self, index: int):
+        return self.sensors[0].data["Timestamp"]
 
     def getTimes(self, index: int) -> pd.Series:
         """Gets the time data for a sensor

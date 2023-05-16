@@ -37,8 +37,8 @@ for k, v in vars(args).items():
         case args.index:
             plotter.indexPlot(int(args.index))
         case args.multiple_index:
-            globals.sensor_min = int(args.multple_index[0])
-            globals.sensor_max = int(args.multiple_index[1]+1)
+            globals.sensor_min = int(args.multiple_index[0])
+            globals.sensor_max = int(args.multiple_index[1])+1
             plotter.compareIndexPlot(list(range(int(args.multiple_index[0]), int(args.multiple_index[1])+1)))
         case args.average:
             globals.sensor_min = int(args.multple_index[0])

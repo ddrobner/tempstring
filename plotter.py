@@ -10,6 +10,7 @@ from datetime import datetime
 from temperaturestring import TemperatureString
 from multiprocessing import Pool
 from multiprocessing import cpu_count
+from dataprocessing import list_chunks
 
 # TODO find out how to uniformly set plot styling separate from each method 
 # TODO automatically set ylimit minimum and maximum properly
@@ -88,13 +89,14 @@ class Plotting:
         Args:
             indices (list): The list of sensor indices to plot
         """
+        # TODO remove dependence on the indices variable
+        # will do this later, need to get some plots out now
         fig, ax = plt.subplots(figsize=(12, 10))
         ax.grid()
         #plt.rc('font', **self.font)
         #plt.rcParams.update(self.params)
         plt.rcParams['font.size'] = 18
         ax.margins(x=0, y=0.02, tight=True)
-        box = ax.get_position()
         color = iter(cm.tab20((np.linspace(0, 1, len(indices)))))
         # initializing these as infinities so the first iteration is always the current min/max
         # very much a math person thing to do lol
@@ -109,19 +111,28 @@ class Plotting:
             cmax = d.max()
             absmin = cmin if (cmin < absmin) else absmin
             absmax = cmax if (cmax > absmax) else absmax
-        monthdisplay = True if (self.date_to - self.date_from) > pd.Timedelta(6, "m") else False
         for idx in range(len(shaped_data)):
             c = next(color)
-            ax.plot(self.tempstring.getTimes(indices[0]), shaped_data[idx], label=str(idx), color=c)
+            #ax.plot(self.tempstring.getTimes(indices[0]), shaped_data[idx], label=str(idx), color=c)
+        # rushed solution, to improve later
+        # the sensor indices are all over the place so it won't be nice however I do it
+        oldstring_idx = [7, 22, 24, 21, 0, 23, 12, 3, 13]
+        self.old_tempstring = TemperatureString(globals.oldoverlay, oldstring_idx) if globals.oldoverlay else None
+        old_color = iter(cm.Dark2((np.linspace(0, 1, len(oldstring_idx)))))
+        if (globals.oldoverlay):
+            for grp in list_chunks(oldstring_idx, 3):
+                c = next(old_color)
+                tempdata = self.old_tempstring.indicesMean(grp)
+                ax.plot(self.tempstring.getTimes(oldstring_idx[0]), np.reshape(tempdata, len(self.tempstring.getTimes(oldstring_idx[0]).to_numpy())), color=c, label=f"Old {grp}")
         ax.set_title(f"Temperature Data for Sensors {indices[0]}-{indices[-1]}")
-        ax.set_ylim(bottom=(absmin - 0.1), top=(absmax + 0.1))
+        #ax.set_ylim(bottom=(absmin - 0.1), top=(absmax + 0.1))
         fmt = pltdates.DateFormatter('%b') if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.DateFormatter("%Y-%m-%d")
         ax.xaxis.set_major_formatter(fmt)
         ax.xaxis.set_major_locator(pltdates.MonthLocator() if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.AutoDateLocator())
         ax.xaxis.set_minor_locator(pltdates.DayLocator())
         ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title="Sensor")
         ax.tick_params(axis="both", which="major", labelsize=14)
-        ax.set_xlabel("Date and Time", fontsize=18)
+        ax.set_xlabel("Date", fontsize=18)
         ax.set_ylabel("Temperature (\u00B0C)", fontsize=18)
         plt.gcf().autofmt_xdate()
-        fig.savefig(f"plots/compareIndexPlot_{self.date_from.date()}_{self.date_to.date()}_indices[{indices[0]}-{indices[-1]}].png", bbox_inches='tight')
+        fig.savefig(f"plots/compareIndexPlot_{self.date_from.date()}_{self.date_to.date()}_indices[{indices[0]}-{indices[-1]}]{'_with_old' if globals.oldoverlay else ''}.png", bbox_inches='tight')
