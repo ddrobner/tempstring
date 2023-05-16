@@ -25,7 +25,7 @@ def init_sensor(index: int, sensordata:pd.DataFrame) -> Sensor:
 class TemperatureString:
     """An object encapsulating all of the sensors, to make interfacing with any number of them easier
     """
-    def __init__(self, start_date:datetime.date, end_date: datetime.date, sensor_min: int=0, sensor_max: int=25) -> None:
+    def __init__(self) -> None:
         """Constructor for TemperatureString
 
         Args:
@@ -36,19 +36,19 @@ class TemperatureString:
         # setting the minimum and maximum sensor ranges
 
         self.sensormap = dict() 
-        sensor_range = list(range(sensor_min, sensor_max+1))
-        for i in range(0, (sensor_max - sensor_min)+1):
+        sensor_range = list(range(globals.sensor_min, globals.sensor_max+1))
+        for i in range(0, (globals.sensor_max - globals.sensor_min)+1):
             self.sensormap.update({sensor_range[i]:i})
 
         # first sensor index for the new PSUP string in the database is 30
         sensor_offset = 30 if not globals.oldstring else 0
 
-        sensordata = databasehandler.getall(start_date, end_date)
+        sensordata = databasehandler.getall(globals.date_from, globals.date_to)
         df_sensordata =  pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
         df_sensordata["Sensor Index"] = df_sensordata["Sensor Index"].apply(lambda x: x-sensor_offset) 
 
-        t_sensordata = (df_sensordata,)*(sensor_max + (1 - sensor_min))
-        t_sensorids = tuple(range(sensor_min, sensor_max+1))
+        t_sensordata = (df_sensordata,)*(globals.sensor_max + (1 - globals.sensor_min))
+        t_sensorids = tuple(range(globals.sensor_min, globals.sensor_max+1))
 
         # storing each sensor object in a list
         with Pool(cpu_count()) as p:

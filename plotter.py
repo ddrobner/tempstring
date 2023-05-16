@@ -4,20 +4,22 @@ import matplotlib.cm as cm
 import pandas as pd
 import numpy as np
 
+import globals
+
 from datetime import datetime
 from temperaturestring import TemperatureString
 from multiprocessing import Pool
 from multiprocessing import cpu_count
-from matplotlib.ticker import AutoMinorLocator
 
 # TODO find out how to uniformly set plot styling separate from each method 
 # TODO automatically set ylimit minimum and maximum properly
 class Plotting:
     """Module which handles all of the plotting of the data
     """
-    def __init__(self, date_from: datetime.date, date_to: datetime.date):
-        self.date_from = date_from
-        self.date_to = date_to
+    def __init__(self):
+        self.tempstring = TemperatureString()
+        self.date_from = globals.date_from 
+        self.date_to = globals.date_to 
         self.font = {'family' : 'sans',
         'weight' : 'bold',
         'size'   : 20}
@@ -34,14 +36,13 @@ class Plotting:
         Args:
             indices (list): List of sensor indices of which to plot the average
         """
-        self.tempstring = TemperatureString(self.date_from, self.date_to, min(indices), max(indices))
         fig, ax = plt.subplots(figsize=(12, 10))
         ax.set_title(f"Average Temperature Measured By Sensors {indices[0]}-{indices[-1]}")
         ax.margins(x=0, y=0.01, tight=True)
         #plt.rc('font', **self.font)
         #plt.rcParams.update(self.params)
         plt.rcParams['font.size'] = 18
-        temperaturedata = self.tempstring.indicesMean(indices)
+        temperaturedata = self.tempstring.indicesMean(list(range(globals.sensor_min, globals.sensor_max)))
         # autoformatting here is pretty wacky
         # splitting this out because it's going to be a long one
         # the sensors don't stop reporting at the exact same timestamp so we have some weird low values here
@@ -66,7 +67,6 @@ class Plotting:
         Args:
             index (int): Index of the sensor to plot
         """
-        self.tempstring = TemperatureString(self.date_from, self.date_to, index, index)
         fig, ax = plt.subplots(figsize=(20, 10))
         #plt.rc('font', **self.font)
         #plt.rcParams.update(self.params)
@@ -88,7 +88,6 @@ class Plotting:
         Args:
             indices (list): The list of sensor indices to plot
         """
-        self.tempstring = TemperatureString(self.date_from, self.date_to, min(indices), max(indices))
         fig, ax = plt.subplots(figsize=(12, 10))
         ax.grid()
         #plt.rc('font', **self.font)
