@@ -4,7 +4,8 @@ import argparse
 
 from dateutil import parser as dateparse
 from plotter import Plotting
-from contextmanager import ContextManager
+from globalmanager import GlobalManager
+import globals
 
 # argparse setup
 parser = argparse.ArgumentParser(
@@ -22,9 +23,11 @@ parser.add_argument('--old-string', action='store_true')
 
 args = parser.parse_args()
 
-contextmanager = ContextManager()
-plotter = Plotting(dateparse.parse(args.date_from), dateparse.parse(args.date_to))
-contextmanager.setParam({"oldstring": args.old_string})
+globalmanager = globals.globalmanager
+globalmanager.setParam({"date_from": dateparse.parse(args.date_from)})
+globalmanager.setParam({"date_to": dateparse.parse(args.date_to)})
+globalmanager.setParam({"oldstring": args.old_string})
+plotter = Plotting()
 
 # control flow, iterates over the arguments and checks which we passed using a switch
 for k, v in vars(args).items():
@@ -37,6 +40,3 @@ for k, v in vars(args).items():
             plotter.compareIndexPlot(list(range(int(args.multiple_index[0]), int(args.multiple_index[1])+1)))
         case args.average:
             plotter.averagePlot(list(range(int(args.average[0]), int(args.average[1])+1)))
-
-def getContextManager():
-    return contextmanager

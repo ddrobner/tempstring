@@ -9,15 +9,17 @@ from temperaturestring import TemperatureString
 from multiprocessing import Pool
 from multiprocessing import cpu_count
 from matplotlib.ticker import AutoMinorLocator
+import globals
 
 # TODO find out how to uniformly set plot styling separate from each method 
 # TODO automatically set ylimit minimum and maximum properly
 class Plotting:
     """Module which handles all of the plotting of the data
     """
-    def __init__(self, date_from: datetime.date, date_to: datetime.date):
-        self.date_from = date_from
-        self.date_to = date_to
+    def __init__(self):
+        self.globalmanager = globals.globalmanager
+        self.date_from = self.globalmanager.getParam("date_from") 
+        self.date_to = self.globalmanager.getParam("date_to")
         self.font = {'family' : 'sans',
         'weight' : 'bold',
         'size'   : 20}
