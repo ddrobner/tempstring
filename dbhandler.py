@@ -1,6 +1,7 @@
 import os
 from psycopg2 import connect
 import datetime
+import globals
 
 class DatabaseHandler:
     """Handles interactions with the database
@@ -28,7 +29,7 @@ class DatabaseHandler:
         self.cur = self.db_conn.cursor()
 
     # gets the data for all sensors from the database
-    def getall(self, date_from: datetime.date, date_to: datetime.date, new_string: bool=False) -> list:
+    def getall(self, date_from: datetime.date, date_to: datetime.date) -> list:
         """Fetches all data from the database in a given time
 
         Args:
@@ -38,7 +39,7 @@ class DatabaseHandler:
         Returns:
             list: List containing the fetched data from the SQL server
         """
-        match new_string:
+        match globals.oldstring:
             case False:
                 self.cur.execute(f"SELECT * FROM public.cavity_temp WHERE (timestamp >= '{date_from.year}-{date_from.month}-{date_from.day}') AND (timestamp <= '{date_to.year}-{date_to.month}-{date_to.day}') AND (sensor >= 30) AND (sensor <= 56) ORDER BY timestamp")
             case True:
