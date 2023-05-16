@@ -36,7 +36,7 @@ class Plotting:
         Args:
             indices (list): List of sensor indices of which to plot the average
         """
-        self.tempstring = TemperatureString(self.date_from, self.date_to, min(indices), max(indices))
+        self.tempstring = TemperatureString(self.date_to, min(indices), max(indices))
         fig, ax = plt.subplots(figsize=(12, 10))
         ax.set_title(f"Average Temperature Measured By Sensors {indices[0]}-{indices[-1]}")
         ax.margins(x=0, y=0.01, tight=True)
@@ -68,7 +68,7 @@ class Plotting:
         Args:
             index (int): Index of the sensor to plot
         """
-        self.tempstring = TemperatureString(self.date_from, self.date_to, index, index)
+        self.tempstring = TemperatureString(index, index)
         fig, ax = plt.subplots(figsize=(20, 10))
         #plt.rc('font', **self.font)
         #plt.rcParams.update(self.params)
@@ -82,7 +82,7 @@ class Plotting:
         ax.set_xlabel("Date and Time", fontsize=18)
         ax.set_ylabel("Temperature (\u00B0C)", fontsize=18)
         plt.gcf().autofmt_xdate()
-        fig.savefig(f"plots/indexPlot_{self.date_from.date()}_{self.date_to.date()}_index[{index}].png", bbox_inches='tight')
+        fig.savefig(f"plots/indexPlot_{self.date_from.date()}_{self.date_to.date()}_index[{index}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
     
     def compareIndexPlot(self, indices:list) -> None:
         """Plots multiple sensor indices on the same plot
@@ -90,7 +90,7 @@ class Plotting:
         Args:
             indices (list): The list of sensor indices to plot
         """
-        self.tempstring = TemperatureString(self.date_from, self.date_to, min(indices), max(indices))
+        self.tempstring = TemperatureString(min(indices), max(indices))
         fig, ax = plt.subplots(figsize=(12, 10))
         ax.grid()
         #plt.rc('font', **self.font)
@@ -127,4 +127,4 @@ class Plotting:
         ax.set_xlabel("Date and Time", fontsize=18)
         ax.set_ylabel("Temperature (\u00B0C)", fontsize=18)
         plt.gcf().autofmt_xdate()
-        fig.savefig(f"plots/compareIndexPlot_{self.date_from.date()}_{self.date_to.date()}_indices[{indices[0]}-{indices[-1]}].png", bbox_inches='tight')
+        fig.savefig(f"plots/compareIndexPlot_{self.date_from.date()}_{self.date_to.date()}_indices[{indices[0]}-{indices[-1]}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')

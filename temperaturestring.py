@@ -4,6 +4,7 @@ from dbhandler import DatabaseHandler
 import pandas as pd
 import numpy as np
 import datetime
+import globals
 
 from multiprocessing import Pool
 from multiprocessing import cpu_count
@@ -24,7 +25,7 @@ def init_sensor(index: int, sensordata:pd.DataFrame) -> Sensor:
 class TemperatureString:
     """An object encapsulating all of the sensors, to make interfacing with any number of them easier
     """
-    def __init__(self, start_date:datetime.date, end_date: datetime.date, sensor_min: int=0, sensor_max: int=25) -> None:
+    def __init__(self, sensor_min: int=0, sensor_max: int=25) -> None:
         """Constructor for TemperatureString
 
         Args:
@@ -32,17 +33,19 @@ class TemperatureString:
             end_date (datetime.date): Data end date
         """
         databasehandler = DatabaseHandler()
-        # setting the minimum and maximum sensor ranges
 
+        self.globalmanager = globals.globalmanager
+        # index the sensors sequentiall internally to make iteration easier
+        # since if we only handle, say sensors 7-12 then indexing breaks
         self.sensormap = dict() 
         sensor_range = list(range(sensor_min, sensor_max+1))
         for i in range(0, (sensor_max - sensor_min)+1):
             self.sensormap.update({sensor_range[i]:i})
 
         # first sensor index for the new PSUP string in the database is 30
-        sensor_offset = 30
+        sensor_offset = 30 if (not self.globalmanager.getParam("oldstring")) else 0
 
-        sensordata = databasehandler.getall(start_date, end_date)
+        sensordata = databasehandler.getall(self.globalmanager.getParam("date_from"), self.globalmanager.getParam("date_to"))
         df_sensordata =  pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
         df_sensordata["Sensor Index"] = df_sensordata["Sensor Index"].apply(lambda x: x-sensor_offset) 
 
