@@ -4,6 +4,7 @@ from dbhandler import DatabaseHandler
 import pandas as pd
 import numpy as np
 import datetime
+import globals
 
 from multiprocessing import Pool
 from multiprocessing import cpu_count
@@ -40,7 +41,7 @@ class TemperatureString:
             self.sensormap.update({sensor_range[i]:i})
 
         # first sensor index for the new PSUP string in the database is 30
-        sensor_offset = 30
+        sensor_offset = 30 if not globals.oldstring else 0
 
         sensordata = databasehandler.getall(start_date, end_date)
         df_sensordata =  pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
