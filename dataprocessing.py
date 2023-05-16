@@ -22,3 +22,7 @@ def fill_blank_timestamps(dataframe: pd.DataFrame) -> pd.DataFrame:
             zeros_df = pd.DataFrame({"Timestamp":missing_dates, "Sensor Index":df["Sensor Index"][:len(missing_dates)], "Temperature":zeros(len(missing_dates))})
             df = pd.concat([df, zeros_df]).sort_values(by="Timestamp")
     return df
+
+def list_chunks(list: list, n: int):
+    for i in range(0, len(list), n):
+        yield list[i:i+n]
