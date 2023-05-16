@@ -118,7 +118,7 @@ class Plotting:
         monthdisplay = True if (self.date_to - self.date_from) > pd.Timedelta(6, "m") else False
         for idx in range(len(shaped_data)):
             c = next(color)
-            ax.plot(self.tempstring.getTimes(indices[0]), shaped_data[idx], label=str(idx), color=c)
+            ax.plot(self.tempstring.getTimes(indices[0]), shaped_data[idx], label=str(indices[idx]), color=c)
         ax.set_title(f"Temperature Data for Sensors {indices[0]}-{indices[-1]}")
         ax.set_ylim(bottom=(absmin - 0.1), top=(absmax + 0.1))
         fmt = pltdates.DateFormatter('%b') if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.DateFormatter("%Y-%m-%d")
