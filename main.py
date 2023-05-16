@@ -1,11 +1,11 @@
 #!/usr/bin/python
 
 import argparse
+import globals
 
 from dateutil import parser as dateparse
 from plotter import Plotting
-from globalmanager import GlobalManager
-import globals
+from pandas import Timestamp
 
 # argparse setup
 parser = argparse.ArgumentParser(
@@ -18,7 +18,7 @@ parser.add_argument('-d', '--date-from')
 parser.add_argument('-D', '--date-to')
 parser.add_argument('--average', help="Plot the average temperature for the given indices", default=None, nargs=2, metavar=("INDEX_LOW", "INDEX_HIGH"))
 parser.add_argument('--index', help="Plot the temperature for a given index", default=None)
-parser.add_argument('--multiple-index', help="Plot multiple sensors in one plot", default=None, nargs=2, metavar=("INDEX_LOW", "INDEX_HIGH"))
+parser.add_argument('--multiple-index', help="Plot multiple sensors in one plot", default=None, nargs='+', metavar=("INDEX_LOW", "INDEX_HIGH"))
 parser.add_argument('--old-string', action='store_true')
 
 args = parser.parse_args()
@@ -27,6 +27,7 @@ globalmanager = globals.globalmanager
 globalmanager.setParam({"date_from": dateparse.parse(args.date_from)})
 globalmanager.setParam({"date_to": dateparse.parse(args.date_to)})
 globalmanager.setParam({"oldstring": args.old_string})
+globalmanager.setParam({"tsoffset": Timestamp(year=2023, month=3, day=16)})
 plotter = Plotting()
 
 # control flow, iterates over the arguments and checks which we passed using a switch
@@ -37,6 +38,11 @@ for k, v in vars(args).items():
         case args.index:
             plotter.indexPlot(int(args.index))
         case args.multiple_index:
-            plotter.compareIndexPlot(list(range(int(args.multiple_index[0]), int(args.multiple_index[1])+1)))
+            if len(args.multiple_index) > 2:
+                indices = list(map(int, args.multiple_index))
+                print(indices)
+            else:
+                indices = list(range(int(args.multiple_index[0]), int(args.multiple_index[1]) + 1))
+            plotter.compareIndexPlot(indices)
         case args.average:
             plotter.averagePlot(list(range(int(args.average[0]), int(args.average[1])+1)))

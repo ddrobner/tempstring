@@ -22,3 +22,11 @@ def fill_blank_timestamps(dataframe: pd.DataFrame) -> pd.DataFrame:
             zeros_df = pd.DataFrame({"Timestamp":missing_dates, "Sensor Index":df["Sensor Index"][:len(missing_dates)], "Temperature":zeros(len(missing_dates))})
             df = pd.concat([df, zeros_df]).sort_values(by="Timestamp")
     return df
+
+def offset_sensor_indices(timestamp: pd.Timestamp, dataframe: pd.DataFrame) -> pd.DataFrame:
+    # copying for the same reason as above
+    df = copy(dataframe)
+    for t in range(len(df["Sensor Index"])):
+        if df["Timestamp"][t].tz_convert("America/Toronto") > timestamp.tz_localize("America/Toronto"):
+            df["Sensor Index"][t] = df["Sensor Index"][t] + 1
+    return df

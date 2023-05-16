@@ -3,11 +3,11 @@ from dbhandler import DatabaseHandler
 
 import pandas as pd
 import numpy as np
-import datetime
 import globals
 
 from multiprocessing import Pool
 from multiprocessing import cpu_count
+from dataprocessing import offset_sensor_indices
 
 def init_sensor(index: int, sensordata:pd.DataFrame) -> Sensor:
     """Helper function to initialize a Sensor, for use with multiprocessing Pool
@@ -48,6 +48,9 @@ class TemperatureString:
         sensordata = databasehandler.getall(self.globalmanager.getParam("date_from"), self.globalmanager.getParam("date_to"))
         df_sensordata =  pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
         df_sensordata["Sensor Index"] = df_sensordata["Sensor Index"].apply(lambda x: x-sensor_offset) 
+        if self.globalmanager.getParam("oldstring"): 
+            df_sensordata["Timestamp"] = df_sensordata["Timestamp"].apply(pd.Timestamp)
+            df_sensordata = offset_sensor_indices(self.globalmanager.getParam("tsoffset"), df_sensordata)
 
         t_sensordata = (df_sensordata,)*(sensor_max + (1 - sensor_min))
         t_sensorids = tuple(range(sensor_min, sensor_max+1))

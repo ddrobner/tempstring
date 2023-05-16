@@ -1,3 +1,4 @@
+import globals
 import pandas as pd
 
 from dataprocessing import fill_blank_timestamps
@@ -15,7 +16,7 @@ class Sensor:
         self.idx = index
         self.tempdata = temperaturedata[temperaturedata["Sensor Index"] == self.idx].reset_index()
         # pandas has a timestamp column type, which will make it rather easy to fill missing timestamps
-        self.tempdata["Timestamp"] = self.tempdata["Timestamp"].apply(pd.Timestamp)
+        if not globals.globalmanager.getParam("oldstring"): self.tempdata["Timestamp"] = self.tempdata["Timestamp"].apply(pd.Timestamp)
         self.tempdata = fill_blank_timestamps(self.tempdata)
 
     
