@@ -40,7 +40,6 @@ for k, v in vars(args).items():
         case args.multiple_index:
             if len(args.multiple_index) > 2:
                 indices = list(map(int, args.multiple_index))
-                print(indices)
             else:
                 indices = list(range(int(args.multiple_index[0]), int(args.multiple_index[1]) + 1))
             plotter.compareIndexPlot(indices)

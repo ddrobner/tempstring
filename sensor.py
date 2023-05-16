@@ -2,6 +2,7 @@ import globals
 import pandas as pd
 
 from dataprocessing import fill_blank_timestamps
+from dataprocessing import discard_outliers
 
 class Sensor:
     """Object which stores the data for a single sensor, don't use outside of the TemperatureString class
@@ -18,6 +19,7 @@ class Sensor:
         # pandas has a timestamp column type, which will make it rather easy to fill missing timestamps
         if not globals.globalmanager.getParam("oldstring"): self.tempdata["Timestamp"] = self.tempdata["Timestamp"].apply(pd.Timestamp)
         self.tempdata = fill_blank_timestamps(self.tempdata)
+        if globals.globalmanager.getParam("oldstring"): self.tempdata = discard_outliers(self.tempdata, 18)
 
     
     # getter method for whatever data the sensor has

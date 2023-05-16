@@ -30,3 +30,6 @@ def offset_sensor_indices(timestamp: pd.Timestamp, dataframe: pd.DataFrame) -> p
         if df["Timestamp"][t].tz_convert("America/Toronto") > timestamp.tz_localize("America/Toronto"):
             df["Sensor Index"][t] = df["Sensor Index"][t] + 1
     return df
+
+def discard_outliers(data: pd.DataFrame, ceiling) -> pd.DataFrame:
+    return data[data["Temperature"] < ceiling].reset_index()
