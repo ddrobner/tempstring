@@ -1,6 +1,7 @@
 import os
 from psycopg2 import connect
 import datetime
+import globals
 
 class DatabaseHandler:
     """Handles interactions with the database
@@ -8,6 +9,8 @@ class DatabaseHandler:
     def __init__(self):
         """Constructor for DatabaseHandler
         """
+
+        self.globalmanager = globals.globalmanager
 
         # database information from Mark
         # note - must be on SL-SNOLAB vpn to access
@@ -38,7 +41,7 @@ class DatabaseHandler:
         Returns:
             list: List containing the fetched data from the SQL server
         """
-        match new_string:
+        match self.globalmanager.getParam("oldstring"):
             case False:
                 self.cur.execute(f"SELECT * FROM public.cavity_temp WHERE (timestamp >= '{date_from.year}-{date_from.month}-{date_from.day}') AND (timestamp <= '{date_to.year}-{date_to.month}-{date_to.day}') AND (sensor >= 30) AND (sensor <= 56) ORDER BY timestamp")
             case True:
