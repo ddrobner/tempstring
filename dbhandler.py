@@ -31,7 +31,7 @@ class DatabaseHandler:
         self.cur = self.db_conn.cursor()
 
     # gets the data for all sensors from the database
-    def getall(self, date_from: datetime.date, date_to: datetime.date, new_string: bool=False) -> list:
+    def getall(self, date_from: datetime.date, date_to: datetime.date) -> list:
         """Fetches all data from the database in a given time
 
         Args:
