@@ -47,8 +47,6 @@ class Plotting:
         Args:
             indices (list): List of sensor indices of which to plot the average
         """
-        # TODO find a better way to get only required indices, currently this gets everything in the range which is kind of bad
-        # probably should just give the indices list to temperaturestring....
         indices.sort()
         self.tempstring = TemperatureString(indices)
         self.ax.set_title(f"Average Temperature Measured By Sensors {f'{indices[0]}-{indices[-1]}' if not self.globalmanager.getParam('oldstring') else ', '.join(str(i) for i in indices) + ' on the Old String'}")
