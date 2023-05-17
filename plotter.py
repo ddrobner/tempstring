@@ -4,11 +4,9 @@ import matplotlib.cm as cm
 import pandas as pd
 import numpy as np
 
-from datetime import datetime
 from temperaturestring import TemperatureString
 from multiprocessing import Pool
 from multiprocessing import cpu_count
-from matplotlib.ticker import AutoMinorLocator
 import globals
 
 # TODO find out how to uniformly set plot styling separate from each method 
