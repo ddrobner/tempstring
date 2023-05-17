@@ -35,9 +35,11 @@ class Plotting:
             indices (list): List of sensor indices of which to plot the average
         """
         # TODO find a better way to get only required indices, currently this gets everything in the range which is kind of bad
+        # probably should just give the indices list to temperaturestring....
         self.tempstring = TemperatureString(min(indices), max(indices))
         fig, ax = plt.subplots(figsize=(12, 10))
-        ax.set_title(f"Average Temperature Measured By Sensors {indices[0]}-{indices[-1]}")
+        indices.sort()
+        ax.set_title(f"Average Temperature Measured By Sensors {f'{indices[0]}-{indices[-1]}' if not self.globalmanager.getParam('oldstring') else ', '.join(str(i) for i in indices) + 'on the Old String'}")
         ax.margins(x=0, y=0.01, tight=True)
         #plt.rc('font', **self.font)
         #plt.rcParams.update(self.params)
@@ -49,7 +51,7 @@ class Plotting:
         # going to get the argmin and shift it by some amount to take a point where they're all actual data
         # that was the plan at least, will have to come back to this
         # I concede on this one, going to eventually add a plotoptions argument to set the limits
-        ax.set_ylim(bottom=11.5, top=(temperaturedata.max() + 0.1))
+        ax.set_ylim(bottom=11, top=(temperaturedata.max() + 0.1))
         ax.plot(np.resize(self.tempstring.getTimes(indices[0]).to_numpy(), len(temperaturedata)), temperaturedata, color="black")
         ax.xaxis.set_major_locator(pltdates.MonthLocator(bymonthday=3))
         ax.xaxis.set_major_formatter(pltdates.DateFormatter("%b"))
@@ -59,7 +61,7 @@ class Plotting:
         plt.gcf().autofmt_xdate()
         ax.set_xlabel("Date and Time", fontsize=18)
         ax.set_ylabel("Temperature (\u00B0C)", fontsize=18)
-        fig.savefig(f"plots/meanPlot_{self.date_from.date()}_{self.date_to.date()}_index[{indices[0]}-{indices[-1]}].png", bbox_inches='tight')
+        fig.savefig(f"plots/meanPlot_{self.date_from.date()}_{self.date_to.date()}_index[{indices[0]}-{indices[-1]}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
 
     def indexPlot(self, index: int) -> None:
         """Plots the temperature data for a specific sensor
@@ -92,9 +94,11 @@ class Plotting:
         Args:
             indices (list): The list of sensor indices to plot
         """
+        # initializing things
         self.tempstring = TemperatureString(min(indices), max(indices))
         fig, ax = plt.subplots(figsize=(12, 10))
         ax.grid()
+        indices.sort()
         plt.rcParams['font.size'] = 18
         ax.margins(x=0, y=0.02, tight=True)
         color = iter(cm.tab20((np.linspace(0, 1, len(indices)))))
@@ -102,8 +106,10 @@ class Plotting:
         # very much a math person thing to do lol
         absmin = np.Inf
         absmax = -1*np.Inf
+        # tuples of arguments to zip together for starmap
         l_sensordata = [self.tempstring.getSensorDataByIndex(k)["Temperature"].values for k in indices]
         l_reshapelength = (len(self.tempstring.getSensorDataByIndex(indices[0])["Temperature"]),)*len(l_sensordata)
+        # multithread array reshaping since it was slow
         with Pool(cpu_count()) as p:
             shaped_data = p.starmap(np.resize, zip(l_sensordata, l_reshapelength))
         for d in shaped_data:
@@ -111,19 +117,22 @@ class Plotting:
             cmax = d.max()
             absmin = cmin if (cmin < absmin) else absmin
             absmax = cmax if (cmax > absmax) else absmax
-        monthdisplay = True if (self.date_to - self.date_from) > pd.Timedelta(6, "m") else False
         for idx in range(len(shaped_data)):
             c = next(color)
             ax.plot(self.tempstring.getTimes(indices[0]), shaped_data[idx], label=str(indices[idx]), color=c)
         if self.globalmanager.getParam("oldstring"):
-            ax.set_title(f"Temperature Data for Sensors {indices} on the Old String")
+            ax.set_title(f"Temperature Data for Sensors {', '.join(str(i) for i in indices)} on the Old String")
         else:
             ax.set_title(f"Temperature Data for Sensors {indices[0]}-{indices[-1]}")
+        # using the min and max from before to autoset the ylimits
         ax.set_ylim(bottom=(absmin - 0.1), top=(absmax + 0.1))
+        # changing formatting depending on plot range
         fmt = pltdates.DateFormatter('%b') if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.DateFormatter("%Y-%m-%d")
         ax.xaxis.set_major_formatter(fmt)
+        # and using mpl's auto date locators
         ax.xaxis.set_major_locator(pltdates.MonthLocator() if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.AutoDateLocator())
         ax.xaxis.set_minor_locator(pltdates.DayLocator())
+        # for external legend
         ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title="Sensor")
         ax.tick_params(axis="both", which="major", labelsize=14)
         ax.set_xlabel("Date and Time", fontsize=18)
