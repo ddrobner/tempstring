@@ -59,7 +59,6 @@ class Plotting:
         # I concede on this one, going to eventually add a plotoptions argument to set the limits
         self.ax.set_ylim(bottom=12, top=(temperaturedata.max() + 0.1))
         self.ax.plot(np.resize(self.tempstring.getTimes(indices[0]).to_numpy(), len(temperaturedata)), temperaturedata, color="black")
-        # for external legend
         self.fig.savefig(f"plots/meanPlot_{self.date_from.date()}_{self.date_to.date()}_index[{indices[0]}-{indices[-1]}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
 
     def indexPlot(self, index: int) -> None:
