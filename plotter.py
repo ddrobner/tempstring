@@ -9,8 +9,7 @@ from multiprocessing import Pool
 from multiprocessing import cpu_count
 import globals
 
-# TODO find out how to uniformly set plot styling separate from each method 
-# TODO automatically set ylimit minimum and maximum properly
+# TODO fix autolimits on averageplot - will be more work than you expect 
 class Plotting:
     """Module which handles all of the plotting of the data
     """
