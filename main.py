@@ -20,7 +20,7 @@ parser.add_argument('--average', help="Plot the average temperature for the give
 parser.add_argument('--index', help="Plot the temperature for a given index", default=None)
 parser.add_argument('--multiple-index', help="Plot multiple sensors in one plot", default=None, nargs='+', metavar=("INDEX_LOW", "INDEX_HIGH"))
 parser.add_argument('--old-string', action='store_true')
-parser.add_argument('--fill-old', action='store_true', help="Fill in missing data with old string data")
+parser.add_argument('--fill-old', nargs="+", help="Fill in missing data with old string data", metavar="FILL_INDICES", default=None)
 
 args = parser.parse_args()
 
@@ -31,7 +31,11 @@ globalmanager.setParam({"date_from": dateparse.parse(args.date_from)})
 globalmanager.setParam({"date_to": dateparse.parse(args.date_to)})
 globalmanager.setParam({"oldstring": args.old_string})
 globalmanager.setParam({"tsoffset": Timestamp(year=2023, month=3, day=16)})
-globalmanager.setParam({"oldfill": args.fill_old})
+
+try:
+    globalmanager.setParam({"fill_old": list(map(int, args.fill_old))})
+except:
+    globalmanager.setParam({"fill_old": None})
 
 plotter = Plotting()
 
