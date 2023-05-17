@@ -12,7 +12,7 @@ class OldTemperatureString(TemperatureString):
     
     # overriding the constructor here to do old string specific processing
     # going to have default arguments for date from and date to here, since we want this to fill in missing data
-    def __init__(self, sensorindices: list, date_from: pd.Timestamp=globals.globalmanager.getParam("date_from"), date_to: pd.Timestamp=globals.globalmanager.getParam("date_to")):
+    def __init__(self, sensorindices: list, fill: bool=False, date_from: pd.Timestamp=None, date_to: pd.Timestamp=None):
         # pulling in global variables
         self.globalmanager = globals.globalmanager 
         
@@ -23,8 +23,13 @@ class OldTemperatureString(TemperatureString):
         c = 0
         for i in sensorindices:
             self.sensormap.update({i:c})
-        
-        sensordata = dbhandler.getall(date_from, date_to, True)
+
+        # get different data depending upon if filling or not
+        if fill:
+            sensordata = dbhandler.getall(date_from, date_to, True)
+        else:
+            sensordata = dbhandler.getall(self.globalmanager.getParam("date_from"), self.globalmanager.getParam("date_to"), True)
+
         df_sensordata = pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
         df_sensordata["Timestamp"] = df_sensordata["Timestamp"].apply(pd.Timestamp)
         # since the idea is that each sensor should only hold the data for itself I have to do this here, otherwise I'd run it for each sensor which is rather inefficient
