@@ -34,7 +34,8 @@ class Plotting:
         Args:
             indices (list): List of sensor indices of which to plot the average
         """
-        self.tempstring = TemperatureString(self.date_to, min(indices), max(indices))
+        # TODO find a better way to get only required indices, currently this gets everything in the range which is kind of bad
+        self.tempstring = TemperatureString(min(indices), max(indices))
         fig, ax = plt.subplots(figsize=(12, 10))
         ax.set_title(f"Average Temperature Measured By Sensors {indices[0]}-{indices[-1]}")
         ax.margins(x=0, y=0.01, tight=True)
@@ -48,7 +49,7 @@ class Plotting:
         # going to get the argmin and shift it by some amount to take a point where they're all actual data
         # that was the plan at least, will have to come back to this
         # I concede on this one, going to eventually add a plotoptions argument to set the limits
-        ax.set_ylim(bottom=12.2, top=(temperaturedata.max() + 0.1))
+        ax.set_ylim(bottom=11.5, top=(temperaturedata.max() + 0.1))
         ax.plot(np.resize(self.tempstring.getTimes(indices[0]).to_numpy(), len(temperaturedata)), temperaturedata, color="black")
         ax.xaxis.set_major_locator(pltdates.MonthLocator(bymonthday=3))
         ax.xaxis.set_major_formatter(pltdates.DateFormatter("%b"))

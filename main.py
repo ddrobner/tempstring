@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser(
 # self-explanatory
 parser.add_argument('-d', '--date-from')
 parser.add_argument('-D', '--date-to')
-parser.add_argument('--average', help="Plot the average temperature for the given indices", default=None, nargs=2, metavar=("INDEX_LOW", "INDEX_HIGH"))
+parser.add_argument('--average', help="Plot the average temperature for the given indices", default=None, nargs="+", metavar=("INDEX_LOW", "INDEX_HIGH"))
 parser.add_argument('--index', help="Plot the temperature for a given index", default=None)
 parser.add_argument('--multiple-index', help="Plot multiple sensors in one plot", default=None, nargs='+', metavar=("INDEX_LOW", "INDEX_HIGH"))
 parser.add_argument('--old-string', action='store_true')
@@ -44,4 +44,8 @@ for k, v in vars(args).items():
                 indices = list(range(int(args.multiple_index[0]), int(args.multiple_index[1]) + 1))
             plotter.compareIndexPlot(indices)
         case args.average:
-            plotter.averagePlot(list(range(int(args.average[0]), int(args.average[1])+1)))
+            if len(args.average) > 2:
+                indices = list(map(int, args.average))
+            else:
+                indices = list(range(int(args.average[0]), int(args.average[1])+1))
+            plotter.averagePlot(indices)
