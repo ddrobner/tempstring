@@ -39,7 +39,7 @@ class Plotting:
         self.tempstring = TemperatureString(min(indices), max(indices))
         fig, ax = plt.subplots(figsize=(12, 10))
         indices.sort()
-        ax.set_title(f"Average Temperature Measured By Sensors {f'{indices[0]}-{indices[-1]}' if not self.globalmanager.getParam('oldstring') else ', '.join(str(i) for i in indices) + 'on the Old String'}")
+        ax.set_title(f"Average Temperature Measured By Sensors {f'{indices[0]}-{indices[-1]}' if not self.globalmanager.getParam('oldstring') else ', '.join(str(i) for i in indices) + ' on the Old String'}")
         ax.margins(x=0, y=0.01, tight=True)
         #plt.rc('font', **self.font)
         #plt.rcParams.update(self.params)
@@ -51,7 +51,7 @@ class Plotting:
         # going to get the argmin and shift it by some amount to take a point where they're all actual data
         # that was the plan at least, will have to come back to this
         # I concede on this one, going to eventually add a plotoptions argument to set the limits
-        ax.set_ylim(bottom=11, top=(temperaturedata.max() + 0.1))
+        ax.set_ylim(bottom=12, top=(temperaturedata.max() + 0.1))
         ax.plot(np.resize(self.tempstring.getTimes(indices[0]).to_numpy(), len(temperaturedata)), temperaturedata, color="black")
         ax.xaxis.set_major_locator(pltdates.MonthLocator(bymonthday=3))
         ax.xaxis.set_major_formatter(pltdates.DateFormatter("%b"))
