@@ -1,4 +1,7 @@
 class GlobalManager:
+    """A class which handles the state of global variable. This should be used as little as possible and generally only for constants
+       This was done to avoid passing things like date ranges through 3 layers of encapsulation
+    """
     def __init__(self):
         self.params = dict()
 
