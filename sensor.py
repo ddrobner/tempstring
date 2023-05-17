@@ -19,6 +19,7 @@ class Sensor:
         # pandas has a timestamp column type, which will make it rather easy to fill missing timestamps
         if not globals.globalmanager.getParam("oldstring"): self.tempdata["Timestamp"] = self.tempdata["Timestamp"].apply(pd.Timestamp)
         self.tempdata = fill_blank_timestamps(self.tempdata)
+        # old string has lots of outliers so we discard them
         if globals.globalmanager.getParam("oldstring"): self.tempdata = discard_outliers(self.tempdata, 18)
 
     
