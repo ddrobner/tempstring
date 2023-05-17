@@ -20,6 +20,7 @@ parser.add_argument('--average', help="Plot the average temperature for the give
 parser.add_argument('--index', help="Plot the temperature for a given index", default=None)
 parser.add_argument('--multiple-index', help="Plot multiple sensors in one plot", default=None, nargs='+', metavar=("INDEX_LOW", "INDEX_HIGH"))
 parser.add_argument('--old-string', action='store_true')
+parser.add_argument('--fill-old', action='store_true', help="Fill in missing data with old string data")
 
 args = parser.parse_args()
 
