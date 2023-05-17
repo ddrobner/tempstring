@@ -1,6 +1,37 @@
 from temperaturestring import TemperatureString
+from temperaturestring import init_sensor
+from dbhandler import DatabaseHandler
+from multiprocessing import Pool,cpu_count
+from dataprocessing import offset_sensor_indices
+
+import globals
+import pandas as pd
 
 # inherits from TemperatureString
 class OldTemperatureString(TemperatureString):
-    # pass right now to make some architectural changes
-    pass
+    
+    # overriding the constructor here to do old string specific processing
+    def __init__(self, sensorindices: list):
+        # pulling in global variables
+        self.globalmanager = globals.globalmanager 
+        
+        # setting up db connection
+        dbhandler = DatabaseHandler()
+
+        self.sensormap = dict()
+        c = 0
+        for i in sensorindices:
+            self.sensormap.update({c:i})
+        
+        sensordata = dbhandler.getall(self.globalmanager.getParam("date_from"), self.globalmanager.getParam("date_to"))
+        df_sensordata = pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
+        df_sensordata["Timestamp"] = df_sensordata["Timestamp"].apply(pd.Timestamp)
+        # since the idea is that each sensor should only hold the data for itself I have to do this here, otherwise I'd run it for each sensor which is rather inefficient
+        df_sensordata = offset_sensor_indices(self.globalmanager.getParam("tsoffset"), df_sensordata)
+
+        t_sensordata = (df_sensordata,)*len(sensorindices)
+        
+        with Pool(cpu_count()) as p:
+            self.sensors = p.starmap(init_sensor, tuple(zip(sensorindices, t_sensordata)))
+
+    # everything else here is inherited from TemperatureString
