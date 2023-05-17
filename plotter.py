@@ -32,11 +32,11 @@ class Plotting:
         # and using mpl's auto date locators
         self.ax.xaxis.set_major_locator(pltdates.MonthLocator() if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.AutoDateLocator())
         self.ax.xaxis.set_minor_locator(pltdates.DayLocator())
-        # for external legend
-        self.ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title="Sensor")
         self.ax.tick_params(axis="both", which="major", labelsize=14)
         self.ax.set_xlabel("Date and Time", fontsize=18)
         self.ax.set_ylabel("Temperature (\u00B0C)", fontsize=18)
+        # need to declare the legend after plotting, so just going to create a dict of legend kwargs and unzip it
+        self.legendparams = {'loc':'center left', 'bbox_to_anchor':(1, 0.5), 'title':'Sensor'} 
         plt.gcf().autofmt_xdate()
 
 
@@ -61,6 +61,8 @@ class Plotting:
         # I concede on this one, going to eventually add a plotoptions argument to set the limits
         self.ax.set_ylim(bottom=12, top=(temperaturedata.max() + 0.1))
         self.ax.plot(np.resize(self.tempstring.getTimes(indices[0]).to_numpy(), len(temperaturedata)), temperaturedata, color="black")
+        # for external legend
+        self.ax.legend(**self.legendparams)
         self.fig.savefig(f"plots/meanPlot_{self.date_from.date()}_{self.date_to.date()}_index[{indices[0]}-{indices[-1]}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
 
     def indexPlot(self, index: int) -> None:
@@ -75,6 +77,7 @@ class Plotting:
         plotdata = self.tempstring.getSensorDataByIndex(index)["Temperature"]
         self.ax.plot(self.tempstring.getTimes(index), plotdata, color="black")
         self.ax.set_ylim(bottom=plotdata[plotdata != 0].min()-0.1, top=plotdata.max()+0.1)
+        self.ax.legend(**self.legendparams)
         self.fig.savefig(f"plots/indexPlot_{self.date_from.date()}_{self.date_to.date()}_index[{index}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
     
     def compareIndexPlot(self, indices:list) -> None:
@@ -113,4 +116,5 @@ class Plotting:
             self.ax.set_title(f"Temperature Data for Sensors {indices[0]}-{indices[-1]}")
         # using the min and max from before to autoset the ylimits
         self.ax.set_ylim(bottom=(absmin - 0.1), top=(absmax + 0.1))
+        self.ax.legend(**self.legendparams)
         self.fig.savefig(f"plots/multipleIndexPlot_{self.date_from.date()}_{self.date_to.date()}_indices[{indices[0]}-{indices[-1]}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
