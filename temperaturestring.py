@@ -39,7 +39,7 @@ class TemperatureString:
         self.sensormap = dict()
         c = 0 
         for i in sensorindices:
-            self.sensormap.update({c:i})
+            self.sensormap.update({i:c})
             c += 1
 
         # first sensor index for the new PSUP string in the database is 30
