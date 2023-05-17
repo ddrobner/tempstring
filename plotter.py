@@ -60,7 +60,7 @@ class Plotting:
         plt.gcf().autofmt_xdate()
         ax.set_xlabel("Date and Time", fontsize=18)
         ax.set_ylabel("Temperature (\u00B0C)", fontsize=18)
-        fig.savefig(f"plots/indicesMeanPlot_{self.date_from.date()}_{self.date_to.date()}_index[{indices[0]}-{indices[-1]}].png", bbox_inches='tight')
+        fig.savefig(f"plots/meanPlot_{self.date_from.date()}_{self.date_to.date()}_index[{indices[0]}-{indices[-1]}].png", bbox_inches='tight')
 
     def indexPlot(self, index: int) -> None:
         """Plots the temperature data for a specific sensor
@@ -130,4 +130,4 @@ class Plotting:
         ax.set_xlabel("Date and Time", fontsize=18)
         ax.set_ylabel("Temperature (\u00B0C)", fontsize=18)
         plt.gcf().autofmt_xdate()
-        fig.savefig(f"plots/compareIndexPlot_{self.date_from.date()}_{self.date_to.date()}_indices[{indices[0]}-{indices[-1]}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
+        fig.savefig(f"plots/multipleIndexPlot_{self.date_from.date()}_{self.date_to.date()}_indices[{indices[0]}-{indices[-1]}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
