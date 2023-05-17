@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 
 from temperaturestring import TemperatureString
+from oldtemperaturestring import OldTemperatureString
 from multiprocessing import Pool
 from multiprocessing import cpu_count
 import globals
@@ -47,7 +48,7 @@ class Plotting:
             indices (list): List of sensor indices of which to plot the average
         """
         indices.sort()
-        self.tempstring = TemperatureString(indices)
+        self.tempstring = TemperatureString(indices) if not self.globalmanager.getParam("oldstring") else OldTemperatureString(indices)
         self.ax.set_title(f"Average Temperature Measured By Sensors {f'{indices[0]}-{indices[-1]}' if not self.globalmanager.getParam('oldstring') else ', '.join(str(i) for i in indices) + ' on the Old String'}")
         temperaturedata = self.tempstring.indicesMean(indices)
         # autoformatting here is pretty wacky
@@ -68,7 +69,7 @@ class Plotting:
         Args:
             index (int): Index of the sensor to plot
         """
-        self.tempstring = TemperatureString([index])
+        self.tempstring = TemperatureString([index]) if not self.globalmanager.getParam("oldstring") else OldTemperatureString([index])
         self.ax.set_title(f"Temperature For Sensor {index} {'on the Old String' if self.globalmanager.getParam('oldstring') else ''}")
         self.ax.margins(x=0, y=0, tight=True)
         plotdata = self.tempstring.getSensorDataByIndex(index)["Temperature"]
@@ -85,7 +86,7 @@ class Plotting:
         """
         # initializing things
         indices.sort()
-        self.tempstring = TemperatureString(indices)
+        self.tempstring = TemperatureString(indices) if not self.globalmanager.getParam("oldstring") else OldTemperatureString(indices)
         # initializing these as infinities so the first iteration is always the current min/max
         # very much a math person thing to do lol
         absmin = np.Inf
