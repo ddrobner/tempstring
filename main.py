@@ -24,11 +24,15 @@ parser.add_argument('--fill-old', action='store_true', help="Fill in missing dat
 
 args = parser.parse_args()
 
+# setting up global variables
+# TODO clean up setting params since setParam is just a wrapper on dict update - can set all globals in the same call
 globalmanager = globals.globalmanager
 globalmanager.setParam({"date_from": dateparse.parse(args.date_from)})
 globalmanager.setParam({"date_to": dateparse.parse(args.date_to)})
 globalmanager.setParam({"oldstring": args.old_string})
 globalmanager.setParam({"tsoffset": Timestamp(year=2023, month=3, day=16)})
+globalmanager.setParam({"oldfill": args.fill_old})
+
 plotter = Plotting()
 
 # control flow, iterates over the arguments and checks which we passed using a switch
