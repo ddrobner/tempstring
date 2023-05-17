@@ -25,7 +25,7 @@ def init_sensor(index: int, sensordata:pd.DataFrame) -> Sensor:
 class TemperatureString:
     """An object encapsulating all of the sensors, to make interfacing with any number of them easier
     """
-    def __init__(self, sensor_min: int=0, sensor_max: int=25) -> None:
+    def __init__(self, sensorindices: list=list(range(0, 28))) -> None:
         """Constructor for TemperatureString
 
         Args:
@@ -37,10 +37,11 @@ class TemperatureString:
         self.globalmanager = globals.globalmanager
         # index the sensors sequentiall internally to make iteration easier
         # since if we only handle, say sensors 7-12 then indexing breaks
-        self.sensormap = dict() 
-        sensor_range = list(range(sensor_min, sensor_max+1))
-        for i in range(0, (sensor_max - sensor_min)+1):
-            self.sensormap.update({sensor_range[i]:i})
+        self.sensormap = dict()
+        c = 0 
+        for i in sensorindices:
+            self.sensormap.update({c:i})
+            c += 1
 
         # first sensor index for the new PSUP string in the database is 30
         sensor_offset = 30 if (not self.globalmanager.getParam("oldstring")) else 0
@@ -52,12 +53,11 @@ class TemperatureString:
             df_sensordata["Timestamp"] = df_sensordata["Timestamp"].apply(pd.Timestamp)
             df_sensordata = offset_sensor_indices(self.globalmanager.getParam("tsoffset"), df_sensordata)
 
-        t_sensordata = (df_sensordata,)*(sensor_max + (1 - sensor_min))
-        t_sensorids = tuple(range(sensor_min, sensor_max+1))
+        t_sensordata = (df_sensordata,)*len(sensorindices)
 
         # storing each sensor object in a list
         with Pool(cpu_count()) as p:
-            self.sensors = p.starmap(init_sensor, tuple(zip(t_sensorids, t_sensordata)))
+            self.sensors = p.starmap(init_sensor, tuple(zip(sensorindices, t_sensordata)))
 
 
     def getSensorDataByIndex(self, index:int) -> pd.DataFrame:
