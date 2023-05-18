@@ -3,12 +3,12 @@ import matplotlib.dates as pltdates
 import matplotlib.cm as cm
 import pandas as pd
 import numpy as np
-import datetime
 
 from temperaturestring import TemperatureString
 from oldtemperaturestring import OldTemperatureString
 from multiprocessing import Pool
 from multiprocessing import cpu_count
+from copy import copy
 import globals
 
 # TODO fix autolimits on averageplot - will be more work than you expect 
@@ -50,35 +50,21 @@ class Plotting:
         """
         indices.sort()
         self.tempstring = TemperatureString(indices) if not self.globalmanager.getParam("oldstring") else OldTemperatureString(indices)
-        if self.globalmanager.getParam("fill_old") == None:
-            self.ax.set_title(f"Average Temperature Measured By Sensors {f'{indices[0]}-{indices[-1]}' if not self.globalmanager.getParam('oldstring') else ', '.join(str(i) for i in indices) + ' on the Old String'}", label="New String")
-        
+
         # getting and plotting the data
         temperaturedata = self.tempstring.indicesMean(indices)
         times = self.tempstring.getTimes(indices[0]).to_numpy()
-        self.ax.plot(np.resize(times, len(temperaturedata)), temperaturedata, color="black")
+        self.ax.plot(np.resize(times, len(temperaturedata)), temperaturedata, color="black", label="New String")
 
-        # NOTE this implementation is very slow
-        # TODO break out into function
         if self.globalmanager.getParam("fill_old") != None:
-            s_data = np.resize(temperaturedata, len(times))
-            c = 0
-            while c < len(s_data):
-                if s_data[c] == 0:
-                    fill_start = times[c]
-                    fill_end = 0
-                    for k in range(len(s_data[c:])-1):
-                        if(s_data[c:][k+1] != 0):
-                            fill_end = times[c+k]
-                            c = c+k
-                            break
-                    fill_sensorindices = self.globalmanager.getParam("fill_old")
-                    fill_tmpstring = OldTemperatureString(fill_sensorindices, True, fill_start, fill_end)
-                    fill_data = fill_tmpstring.indicesMean(fill_sensorindices)
-                    self.ax.plot(np.resize(fill_tmpstring.getTimes(fill_sensorindices[0]).to_numpy(), len(fill_data)), fill_data,color="red", label="Old String")
-                c += 1
-            self.ax.set_title(f"Average Temperature Measured By Sensors {indices[0]}-{indices[-1]} With Old String Average of Sensors {', '.join(str(s) for s in fill_sensorindices)}")
-            #self.ax.legend(**self.legendparams)
+            overlay_indices = copy(self.globalmanager.getParam("fill_old"))
+            overlay_indices.sort()
+            self.old_overlay_plot(overlay_indices)
+            self.ax.set_title(f"Average Temperature Measured By Sensors {indices[0]}-{indices[-1]} With Old String Average of Sensors {', '.join(str(s) for s in overlay_indices)}")
+            self.ax.legend(**self.legendparams)
+        else:
+            self.ax.set_title(f"Average Temperature Measured By Sensors {f'{indices[0]}-{indices[-1]}' if not self.globalmanager.getParam('oldstring') else ', '.join(str(i) for i in indices) + ' on the Old String'}", label="New String")
+
 
         # autoformatting here is pretty wacky
         # splitting this out because it's going to be a long one
@@ -142,3 +128,8 @@ class Plotting:
         self.ax.set_ylim(bottom=(absmin - 0.1), top=(absmax + 0.1))
         self.ax.legend(**self.legendparams)
         self.fig.savefig(f"plots/multipleIndexPlot_{self.date_from.date()}_{self.date_to.date()}_indices[{indices[0]}-{indices[-1]}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
+
+    def old_overlay_plot(self, indices):
+        old_tmpstring = OldTemperatureString(indices)
+        oldplot_data = old_tmpstring.indicesMean(indices)
+        self.ax.plot(np.resize(old_tmpstring.getTimes(indices[0]).to_numpy(), len(oldplot_data)), oldplot_data, color="red", label="Old String", alpha=0.75)
