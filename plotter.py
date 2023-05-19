@@ -152,6 +152,7 @@ class Plotting:
         plt.rcParams['pcolor.shading'] = 'nearest'
         cmap = hax.pcolormesh(np.array(x), np.array(y).T, z, cmap=cm.jet, vmin=vmin, shading='nearest')
 
+        # TODO deal with weird sensor order and pcolormesh coordinates
         fmt = pltdates.DateFormatter('%b') if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.DateFormatter("%Y-%m-%d")
         hax.xaxis.set_major_formatter(fmt)
         # and using mpl's auto date locators
@@ -160,7 +161,7 @@ class Plotting:
         hax.tick_params(axis="both", which="major", labelsize=14)
 
         hfig.colorbar(cmap)
-        hfig.savefig("testmesh.png")
+        hfig.savefig(f"plots/heatmap_{self.date_from}-{self.date_to}{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png")
 
 
     def old_overlay_plot(self, indices):
