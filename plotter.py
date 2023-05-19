@@ -38,6 +38,7 @@ class Plotting:
         self.ax.set_ylabel("Temperature (\u00B0C)", fontsize=18)
         # need to declare the legend after plotting, so just going to create a dict of legend kwargs and unzip it
         self.legendparams = {'loc':'center left', 'bbox_to_anchor':(1, 0.5), 'title':'Sensor'} 
+        self.overlaylegendparams = {'loc':'center left', 'bbox_to_anchor':(1, 0.5), 'title':'String'}
         plt.gcf().autofmt_xdate()
 
 
@@ -61,7 +62,7 @@ class Plotting:
             overlay_indices.sort()
             self.old_overlay_plot(overlay_indices)
             self.ax.set_title(f"Average Temperature Measured By Sensors {indices[0]}-{indices[-1]} With Old String Average of Sensors {', '.join(str(s) for s in overlay_indices)}")
-            self.ax.legend(**self.legendparams)
+            self.ax.legend(**self.overlaylegendparams)
         else:
             self.ax.set_title(f"Average Temperature Measured By Sensors {f'{indices[0]}-{indices[-1]}' if not self.globalmanager.getParam('oldstring') else ', '.join(str(i) for i in indices) + ' on the Old String'}", label="New String")
 
