@@ -39,7 +39,6 @@ except:
     globalmanager.setParam({"fill_old": None})
 
 plotter = Plotting()
-plotter.heatmap(0)
 
 # control flow, iterates over the arguments and checks which we passed using a switch
 for k, v in vars(args).items():
