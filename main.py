@@ -21,6 +21,7 @@ parser.add_argument('--index', help="Plot the temperature for a given index", de
 parser.add_argument('--multiple-index', help="Plot multiple sensors in one plot", default=None, nargs='+', metavar=("INDEX_LOW", "INDEX_HIGH"))
 parser.add_argument('--old-string', action='store_true')
 parser.add_argument('--fill-old', nargs="+", help="Fill in missing data with old string data", metavar="FILL_INDICES", default=None)
+parser.add_argument('--heatmap', action='store_true')
 
 args = parser.parse_args()
 
@@ -38,12 +39,15 @@ except:
     globalmanager.setParam({"fill_old": None})
 
 plotter = Plotting()
+plotter.heatmap(0)
 
 # control flow, iterates over the arguments and checks which we passed using a switch
 for k, v in vars(args).items():
     match v:
         case None:
             pass
+        case args.heatmap:
+            plotter.histPlot()
         case args.index:
             plotter.indexPlot(int(args.index))
         case args.multiple_index:

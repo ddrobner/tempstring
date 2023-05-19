@@ -129,6 +129,26 @@ class Plotting:
         self.ax.set_ylim(bottom=(absmin - 0.1), top=(absmax + 0.1))
         self.ax.legend(**self.legendparams)
         self.fig.savefig(f"plots/multipleIndexPlot_{self.date_from.date()}_{self.date_to.date()}_indices[{indices[0]}-{indices[-1]}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
+    
+    def histPlot(self):
+        hfig, hax = plt.subplots(figsize=(18, 10))
+
+        # oldstring indices are screwed up, going to hardcode them in this list
+        # want them plotted in depth order so order is important here
+        oldstring_indices = [20, 16, 7, 22, 24, 21, 0, 23, 12, 3, 13, 26, 1, 9, 4, 14, 29, 8, 5, 2, 27, 18, 11, 19, 25, 17, 15, 28, 6, 10]
+        tempstring = TemperatureString(list(range(0, 32))) if not self.globalmanager.getParam("oldstring") else OldTemperatureString(oldstring_indices)
+
+        x = tempstring.getTimes(oldstring_indices[0] if self.globalmanager.getParam("oldstring") else 0).to_numpy()
+        y = []
+        z = []
+        for d in tempstring.getStringData():
+            y.append(list(d["Sensor Index"]))
+            z.append(list(d["Temperature"]))
+        print(x)
+        print(y)
+        print(z)
+
+
 
     def old_overlay_plot(self, indices):
         old_tmpstring = OldTemperatureString(indices)
