@@ -143,14 +143,14 @@ class Plotting:
         z = []
         vmin = np.inf
         for d in tempstring.getStringData():
-            y.append(d["Sensor Index"][0])
+            y.append(d["Sensor Index"].to_numpy()[0])
             cur_zdata = d["Temperature"].to_numpy()
             z.append(cur_zdata)        
-            vmin = cur_zdata.min() if cur_zdata[cur_zdata != 0].min() < vmin else vmin 
-    
+            vmin = cur_zdata[cur_zdata != 0].min() if cur_zdata[cur_zdata != 0].min() < vmin else vmin 
+
         z = [np.resize(l, len(z[0])) for l in z]
         plt.rcParams['pcolor.shading'] = 'nearest'
-        cmap = hax.pcolormesh(np.array(x), np.array(y), z, cmap=cm.jet, vmin=vmin, shading='nearest')
+        cmap = hax.pcolormesh(np.array(x), np.array(y).T, z, cmap=cm.jet, vmin=vmin, shading='nearest')
 
         fmt = pltdates.DateFormatter('%b') if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.DateFormatter("%Y-%m-%d")
         hax.xaxis.set_major_formatter(fmt)
