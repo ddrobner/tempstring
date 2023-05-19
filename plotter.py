@@ -131,23 +131,36 @@ class Plotting:
         self.fig.savefig(f"plots/multipleIndexPlot_{self.date_from.date()}_{self.date_to.date()}_indices[{indices[0]}-{indices[-1]}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
     
     def histPlot(self):
-        #hfig, hax = plt.subplots(figsize=(18, 10))
-        hfig, hax = plt.subplots()
+        hfig, hax = plt.subplots(figsize=(18, 10))
 
         # oldstring indices are screwed up, going to hardcode them in this list
         # want them plotted in depth order so order is important here
         oldstring_indices = [20, 16, 7, 22, 24, 21, 0, 23, 12, 3, 13, 26, 1, 9, 4, 14, 29, 8, 5, 2, 27, 18, 11, 19, 25, 17, 15, 28, 6, 10]
-        tempstring = TemperatureString(list(range(0, 22))) if not self.globalmanager.getParam("oldstring") else OldTemperatureString(oldstring_indices)
+        tempstring = TemperatureString(list(range(0, 21))) if not self.globalmanager.getParam("oldstring") else OldTemperatureString(oldstring_indices)
 
         x = tempstring.getTimes(oldstring_indices[0] if self.globalmanager.getParam("oldstring") else 0).to_numpy()
         y = []
         z = []
+        vmin = np.inf
         for d in tempstring.getStringData():
-            y.extend(list(d["Sensor Index"]))
-            z.extend(d["Temperature"])
-        cmap = hax.pcolormesh([x, y], z)
+            y.append(d["Sensor Index"][0])
+            cur_zdata = d["Temperature"].to_numpy()
+            z.append(cur_zdata)        
+            vmin = cur_zdata.min() if cur_zdata[cur_zdata != 0].min() < vmin else vmin 
+    
+        z = [np.resize(l, len(z[0])) for l in z]
+        plt.rcParams['pcolor.shading'] = 'nearest'
+        cmap = hax.pcolormesh(np.array(x), np.array(y), z, cmap=cm.jet, vmin=vmin, shading='nearest')
+
+        fmt = pltdates.DateFormatter('%b') if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.DateFormatter("%Y-%m-%d")
+        hax.xaxis.set_major_formatter(fmt)
+        # and using mpl's auto date locators
+        hax.xaxis.set_major_locator(pltdates.MonthLocator() if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.AutoDateLocator())
+        hax.xaxis.set_minor_locator(pltdates.DayLocator())
+        hax.tick_params(axis="both", which="major", labelsize=14)
+
         hfig.colorbar(cmap)
-        hfig.savefig("plots/cmaptest.png")
+        hfig.savefig("testmesh.png")
 
 
     def old_overlay_plot(self, indices):
