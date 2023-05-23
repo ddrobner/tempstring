@@ -9,6 +9,7 @@ from temperaturestring import TemperatureString
 from oldtemperaturestring import OldTemperatureString
 from multiprocessing import Pool
 from multiprocessing import cpu_count
+from math import floor
 from copy import copy
 import globals
 
@@ -151,7 +152,10 @@ class Plotting:
 
         if self.globalmanager.getParam("oldstring"):
             y = list(range(len(oldstring_indices)))
-            y_labels = [str(i) for i in oldstring_indices]
+            # hardcoding depths in cm
+            depths = {20:10.2, 16:25, 7:65, 22:105, 24:145, 21:185, 0:225, 23:265, 12:305, 3:345, 13:385, 26:425, 1:465, 9:505, 4:545, 14:585,
+                      29:710, 8:835, 5:960, 2:1085, 27:1210, 18:1335, 11:1460, 19:1585, 25:1710, 17:1835, 15:1960, 28:2085, 6:2210, 10:2335}
+            y_labels = [str(round(depths[i]/2.54, 1)) for i in oldstring_indices]
 
         z = [np.resize(l, len(z[0])) for l in z]
         plt.rcParams['pcolor.shading'] = 'nearest'
@@ -164,11 +168,11 @@ class Plotting:
         hax.xaxis.set_major_formatter(fmt)
         # and using mpl's auto date locators
         hax.xaxis.set_major_locator(pltdates.MonthLocator(bymonthday=3) if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.AutoDateLocator())
-        hax.xaxis.set_minor_locator(pltdates.DayLocator(interval=10))
+        hax.xaxis.set_minor_locator(pltdates.DayLocator(interval=floor((self.date_from - self.date_to).seconds/31536000)))
         hax.tick_params(axis="both", which="major", labelsize=14)
         hfig.autofmt_xdate()
         hax.set_xlabel("Date")
-        hax.set_ylabel("Sensor")
+        hax.set_ylabel("Depth (in)")
         hax.set_title("SNO+ Cavity Temperature")
         hax.invert_yaxis()
 
