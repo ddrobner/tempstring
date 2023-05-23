@@ -160,11 +160,11 @@ class Plotting:
         if self.globalmanager.getParam("oldstring"):
             hax.yaxis.set_major_locator(ticker.FixedLocator(y))
             hax.set_yticklabels(y_labels)
-        fmt = pltdates.DateFormatter('%b') if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.DateFormatter("%Y-%m-%d")
+        fmt = pltdates.DateFormatter('%b') if (self.date_to - self.date_from) > pd.Timedelta(3, "m") else pltdates.DateFormatter("%Y-%m-%d")
         hax.xaxis.set_major_formatter(fmt)
         # and using mpl's auto date locators
-        hax.xaxis.set_major_locator(pltdates.MonthLocator() if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.AutoDateLocator())
-        hax.xaxis.set_minor_locator(pltdates.DayLocator(bymonthday=3))
+        hax.xaxis.set_major_locator(pltdates.MonthLocator(bymonthday=3) if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.AutoDateLocator())
+        hax.xaxis.set_minor_locator(pltdates.DayLocator(interval=10))
         hax.tick_params(axis="both", which="major", labelsize=14)
         hfig.autofmt_xdate()
         hax.set_xlabel("Date")
