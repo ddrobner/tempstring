@@ -35,7 +35,7 @@ class OldTemperatureString(TemperatureString):
         # since the idea is that each sensor should only hold the data for itself I have to do this here, otherwise I'd run it for each sensor which is rather inefficient
         starts = self.globalmanager.getParam("offset_starts")
         ends = self.globalmanager.getParam("offset_ends")
-        for t in range(starts):
+        for t in range(len(starts)):
             df_sensordata = offset_sensor_indices(starts[t], ends[t], df_sensordata)
 
         t_sensordata = (df_sensordata,)*len(sensorindices)
