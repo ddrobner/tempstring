@@ -40,24 +40,21 @@ except:
 
 plotter = Plotting()
 
-# control flow, iterates over the arguments and checks which we passed using a switch
-for k, v in vars(args).items():
-    match v:
-        case None:
-            pass
-        case args.heatmap:
-            plotter.histPlot()
-        case args.index:
-            plotter.indexPlot(int(args.index))
-        case args.multiple_index:
-            if len(args.multiple_index) > 2:
-                indices = list(map(int, args.multiple_index))
-            else:
-                indices = list(range(int(args.multiple_index[0]), int(args.multiple_index[1]) + 1))
-            plotter.compareIndexPlot(indices)
-        case args.average:
-            if len(args.average) > 2:
-                indices = list(map(int, args.average))
-            else:
-                indices = list(range(int(args.average[0]), int(args.average[1])+1))
-            plotter.averagePlot(indices)
+# couldn't use a switch here because it would run things multiple times when using store true
+for k,v in vars(args).items():
+    if k == "heatmap" and args.heatmap:
+        plotter.histPlot()
+    elif k == "average" and args.average != None:
+        if len(args.average) > 2:
+            indices = list(map(int, args.average))
+        else:
+            indices = list(range(int(args.average[0]), int(args.average[1])+1))
+    elif k == "index" and args.index != None:
+        plotter.indexPlot(int(args.index))
+    elif k == "multiple_index" and args.multiple_index != None:
+        if len(args.multiple_index) > 2:
+            indices = list(map(int, args.multiple_index))
+        else:
+            indices = list(range(int(args.multiple_index[0]), int(args.multiple_index[1]) + 1))
+        plotter.compareIndexPlot(indices)
+    
