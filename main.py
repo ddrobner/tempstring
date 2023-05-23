@@ -22,6 +22,8 @@ parser.add_argument('--multiple-index', help="Plot multiple sensors in one plot"
 parser.add_argument('--old-string', action='store_true')
 parser.add_argument('--fill-old', nargs="+", help="Fill in missing data with old string data", metavar="FILL_INDICES", default=None)
 parser.add_argument('--heatmap', action='store_true')
+parser.add_argument('--index-offset-start', nargs="+", help="Index shifting start points, for when dealing with the old string", default=None)
+parser.add_argument('--index-offset-end', nargs="+", help="Index offset endpoints, for when dealing with the old string", default=None)
 
 args = parser.parse_args()
 
@@ -33,10 +35,20 @@ globalmanager.setParam({"date_to": dateparse.parse(args.date_to)})
 globalmanager.setParam({"oldstring": args.old_string})
 globalmanager.setParam({"tsoffset": Timestamp(year=2023, month=3, day=16)})
 
+
 try:
     globalmanager.setParam({"fill_old": list(map(int, args.fill_old))})
 except:
     globalmanager.setParam({"fill_old": None})
+
+try:
+    offset_starts = list(map(dateparse.parse(args.index_offset_start)))
+    offset_ends = list(map(dateparse.parse, args.index_offset_end))
+    globalmanager.setParam({"offset_starts": offset_starts})
+    globalmanager.setParam({"offset_ends": offset_ends})
+except:
+    globalmanager.setParam({"offset_starts": []})
+    globalmanager.setParam({"offset_ends": []})
 
 plotter = Plotting()
 
