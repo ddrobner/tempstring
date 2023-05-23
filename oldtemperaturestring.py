@@ -33,7 +33,10 @@ class OldTemperatureString(TemperatureString):
         df_sensordata = pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
         df_sensordata["Timestamp"] = df_sensordata["Timestamp"].apply(pd.Timestamp)
         # since the idea is that each sensor should only hold the data for itself I have to do this here, otherwise I'd run it for each sensor which is rather inefficient
-        df_sensordata = offset_sensor_indices(self.globalmanager.getParam("tsoffset"), df_sensordata)
+        starts = self.globalmanager.getParam("offset_starts")
+        ends = self.globalmanager.getParam("offset_ends")
+        for t in range(starts):
+            df_sensordata = offset_sensor_indices(starts[t], ends[t], df_sensordata)
 
         t_sensordata = (df_sensordata,)*len(sensorindices)
         
