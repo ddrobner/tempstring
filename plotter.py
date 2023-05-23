@@ -3,6 +3,7 @@ import matplotlib.dates as pltdates
 import matplotlib.cm as cm
 import pandas as pd
 import numpy as np
+import matplotlib.ticker as ticker
 
 from temperaturestring import TemperatureString
 from oldtemperaturestring import OldTemperatureString
@@ -148,20 +149,31 @@ class Plotting:
             z.append(cur_zdata)        
             vmin = cur_zdata[cur_zdata != 0].min() if cur_zdata[cur_zdata != 0].min() < vmin else vmin 
 
+        if self.globalmanager.getParam("oldstring"):
+            y = list(range(len(oldstring_indices)))
+            y_labels = [str(i) for i in oldstring_indices]
+
         z = [np.resize(l, len(z[0])) for l in z]
         plt.rcParams['pcolor.shading'] = 'nearest'
         cmap = hax.pcolormesh(np.array(x), np.array(y).T, z, cmap=cm.jet, vmin=vmin, shading='nearest')
 
-        # TODO deal with weird sensor order and pcolormesh coordinates
+        if self.globalmanager.getParam("oldstring"):
+            hax.yaxis.set_major_locator(ticker.FixedLocator(y))
+            hax.set_yticklabels(y_labels)
         fmt = pltdates.DateFormatter('%b') if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.DateFormatter("%Y-%m-%d")
         hax.xaxis.set_major_formatter(fmt)
         # and using mpl's auto date locators
         hax.xaxis.set_major_locator(pltdates.MonthLocator() if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.AutoDateLocator())
-        hax.xaxis.set_minor_locator(pltdates.DayLocator())
+        hax.xaxis.set_minor_locator(pltdates.DayLocator(bymonthday=3))
         hax.tick_params(axis="both", which="major", labelsize=14)
+        hfig.autofmt_xdate()
+        hax.set_xlabel("Date")
+        hax.set_ylabel("Sensor")
+        hax.set_title("SNO+ Cavity Temperature")
+        hax.invert_yaxis()
 
         hfig.colorbar(cmap)
-        hfig.savefig(f"plots/heatmap_{self.date_from}-{self.date_to}{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png")
+        hfig.savefig(f"plots/heatmap_{self.date_from.date()}-{self.date_to.date()}{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
 
 
     def old_overlay_plot(self, indices):
