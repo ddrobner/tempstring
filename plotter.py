@@ -171,6 +171,7 @@ class Plotting:
             p.close()
             p.join()
         vmin = min(mins)
+        del tempstring
 
         if self.globalmanager.getParam("oldstring"):
             y = list(range(len(oldstring_indices)))
