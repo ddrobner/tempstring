@@ -1,6 +1,8 @@
 import pandas as pd
 from numpy import zeros
+from memory_profiler import profile
 
+@profile
 def fill_blank_timestamps(dataframe: pd.DataFrame) -> pd.DataFrame:
     """Fills missing timestamps for when the detector is online
 
@@ -22,6 +24,7 @@ def fill_blank_timestamps(dataframe: pd.DataFrame) -> pd.DataFrame:
             df = pd.concat([df, zeros_df]).sort_values(by="Timestamp")
     return df
 
+@profile
 def offset_sensor_indices(ts_start: pd.Timestamp, ts_end: pd.Timestamp, dataframe: pd.DataFrame) -> pd.DataFrame:
     # copying for the same reason as above
     df = dataframe
@@ -30,5 +33,6 @@ def offset_sensor_indices(ts_start: pd.Timestamp, ts_end: pd.Timestamp, datafram
             df["Sensor Index"][t] = df["Sensor Index"][t] + 1
     return df
 
+@profile
 def discard_outliers(data: pd.DataFrame, ceiling) -> pd.DataFrame:
     return data[data["Temperature"] < ceiling].reset_index()

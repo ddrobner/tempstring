@@ -1,8 +1,9 @@
 from temperaturestring import TemperatureString
 from temperaturestring import init_sensor
 from dbhandler import DatabaseHandler
-from multiprocessing import Pool,cpu_count
+from multiprocessing import Pool
 from dataprocessing import offset_sensor_indices
+from memory_profiler import profile
 
 import globals
 import pandas as pd
@@ -13,6 +14,7 @@ class OldTemperatureString(TemperatureString):
     
     # overriding the constructor here to do old string specific processing
     # going to have default arguments for date from and date to here, since we want this to fill in missing data
+    @profile
     def __init__(self, sensorindices: list, fill: bool=False, date_from: pd.Timestamp=None, date_to: pd.Timestamp=None):
         # pulling in global variables
         self.globalmanager = globals.globalmanager 
@@ -35,14 +37,13 @@ class OldTemperatureString(TemperatureString):
             sensordata = dbhandler.getall(self.globalmanager.getParam("date_from"), self.globalmanager.getParam("date_to"), True)
 
         del dbhandler
+        gc.collect()
 
         df_sensordata = pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
         df_sensordata["Timestamp"] = df_sensordata["Timestamp"].apply(pd.Timestamp)
         # since the idea is that each sensor should only hold the data for itself I have to do this here, otherwise I'd run it for each sensor which is rather inefficient
         starts = self.globalmanager.getParam("offset_starts")
-        print(starts)
         ends = self.globalmanager.getParam("offset_ends")
-        print(ends)
         for t in range(len(starts)):
             df_sensordata = offset_sensor_indices(starts[t], ends[t], df_sensordata)
 
