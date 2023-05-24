@@ -202,7 +202,7 @@ class Plotting:
         hfig.autofmt_xdate()
         hax.set_xlabel("Date")
         hax.set_ylabel("Depth (inches)")
-        hax.set_title("SNO+ Cavity Temperature \u00B0C")
+        hax.set_title("SNO+ Cavity Temperature (\u00B0C)")
         hax.invert_yaxis()
 
         hfig.colorbar(cmap)
