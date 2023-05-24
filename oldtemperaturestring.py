@@ -23,6 +23,7 @@ class OldTemperatureString(TemperatureString):
         c = 0
         for i in sensorindices:
             self.sensormap.update({i:c})
+            c += 1
 
         # get different data depending upon if filling or not
         if fill:
