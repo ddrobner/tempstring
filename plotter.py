@@ -125,6 +125,7 @@ class Plotting:
             p.join()
         del l_sensordata
         del l_reshapelength
+        gc.collect()
         for d in shaped_data:
             cmin = d[d != 0].min()
             cmax = d.max()
@@ -172,6 +173,8 @@ class Plotting:
             p.join()
         vmin = min(mins)
         del tempstring
+        del mins
+        gc.collect()
 
         if self.globalmanager.getParam("oldstring"):
             y = list(range(len(oldstring_indices)))
@@ -182,10 +185,11 @@ class Plotting:
         z = [np.resize(l, len(z[0])) for l in z]
         plt.rcParams['pcolor.shading'] = 'nearest'
 
-        # garbage collector
-        gc.collect()
-
         cmap = hax.pcolormesh(np.array(x), np.array(y).T, z, cmap=cm.jet, vmin=vmin, shading='nearest')
+        del x
+        del y
+        del z
+        gc.collect()
 
         if self.globalmanager.getParam("oldstring"):
             # setting tick locations as to not clutter the plot

@@ -6,6 +6,7 @@ from dataprocessing import offset_sensor_indices
 
 import globals
 import pandas as pd
+import gc
 
 # inherits from TemperatureString
 class OldTemperatureString(TemperatureString):
@@ -37,7 +38,9 @@ class OldTemperatureString(TemperatureString):
         df_sensordata["Timestamp"] = df_sensordata["Timestamp"].apply(pd.Timestamp)
         # since the idea is that each sensor should only hold the data for itself I have to do this here, otherwise I'd run it for each sensor which is rather inefficient
         starts = self.globalmanager.getParam("offset_starts")
+        print(starts)
         ends = self.globalmanager.getParam("offset_ends")
+        print(ends)
         for t in range(len(starts)):
             df_sensordata = offset_sensor_indices(starts[t], ends[t], df_sensordata)
 
@@ -49,5 +52,6 @@ class OldTemperatureString(TemperatureString):
             p.join()
         del t_sensordata
         del df_sensordata
+        gc.collect()
 
     # everything else here is inherited from TemperatureString

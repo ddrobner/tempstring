@@ -2,6 +2,7 @@ from sensor import Sensor
 from dbhandler import DatabaseHandler
 
 import pandas as pd
+import gc
 import numpy as np
 import globals
 
@@ -45,6 +46,8 @@ class TemperatureString:
         sensor_offset = 30
 
         sensordata = databasehandler.getall(self.globalmanager.getParam("date_from"), self.globalmanager.getParam("date_to"))
+        # getting rid of database handler once we get the data
+        del databasehandler
         df_sensordata =  pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
         df_sensordata["Sensor Index"] = df_sensordata["Sensor Index"].apply(lambda x: x-sensor_offset) 
 
@@ -56,6 +59,7 @@ class TemperatureString:
             p.close()
             p.join()
         del t_sensordata
+        gc.collect()
 
 
     def getSensorDataByIndex(self, index:int) -> pd.DataFrame:

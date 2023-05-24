@@ -1,5 +1,6 @@
 import globals
 import pandas as pd
+import gc
 
 from dataprocessing import fill_blank_timestamps
 from dataprocessing import discard_outliers
@@ -22,6 +23,8 @@ class Sensor:
         # old string has lots of outliers so we discard them
         if globals.globalmanager.getParam("oldstring"): self.tempdata = discard_outliers(self.tempdata, 18)
         del temperaturedata
+        gc.collect()
+        
 
     
     # getter method for whatever data the sensor has
