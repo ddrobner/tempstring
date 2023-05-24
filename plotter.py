@@ -166,9 +166,11 @@ class Plotting:
             vmin = cur_zdata[cur_zdata != 0].min() if cur_zdata[cur_zdata != 0].min() < vmin else vmin 
         """
 
-
-        with Pool() as p:
-            y, z, mins = zip(*p.map(pcolormesh_prep, tempstring.getStringData()))
+        d = deepcopy(tempstring.getStringData())
+        del tempstring
+        gc.collect()
+        with Pool(maxtasksperchild=1) as p:
+            y, z, mins = zip(*p.map(pcolormesh_prep, d))
             p.close()
             p.join()
         vmin = min(mins)
@@ -186,10 +188,6 @@ class Plotting:
         plt.rcParams['pcolor.shading'] = 'nearest'
 
         cmap = hax.pcolormesh(np.array(x), np.array(y).T, z, cmap=cm.jet, vmin=vmin, shading='nearest')
-        del x
-        del y
-        del z
-        gc.collect()
 
         if self.globalmanager.getParam("oldstring"):
             # setting tick locations as to not clutter the plot
@@ -197,6 +195,10 @@ class Plotting:
             tick_locations = [y[0], y[4], y[8], y[12], y[16], y[20], y[24], y[28]]
             hax.yaxis.set_major_locator(ticker.FixedLocator(tick_locations))
             hax.set_yticklabels([ceil(depths[i]/2.54) for i in sensorticklocations])
+        del x
+        del y
+        del z
+        gc.collect()
         fmt = pltdates.DateFormatter('%b') if (self.date_to - self.date_from) > pd.Timedelta(3, "m") else pltdates.DateFormatter("%Y-%m-%d")
         hax.xaxis.set_major_formatter(fmt)
         # and using mpl's auto date locators

@@ -54,7 +54,7 @@ class TemperatureString:
         t_sensordata = (df_sensordata,)*len(sensorindices)
 
         # storing each sensor object in a list
-        with Pool() as p:
+        with Pool(maxtasksperchild=1) as p:
             self.sensors = p.starmap(init_sensor, tuple(zip(sensorindices, t_sensordata)))
             p.close()
             p.join()

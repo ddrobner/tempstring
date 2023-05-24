@@ -34,6 +34,8 @@ class OldTemperatureString(TemperatureString):
         else:
             sensordata = dbhandler.getall(self.globalmanager.getParam("date_from"), self.globalmanager.getParam("date_to"), True)
 
+        del dbhandler
+
         df_sensordata = pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
         df_sensordata["Timestamp"] = df_sensordata["Timestamp"].apply(pd.Timestamp)
         # since the idea is that each sensor should only hold the data for itself I have to do this here, otherwise I'd run it for each sensor which is rather inefficient
@@ -46,7 +48,7 @@ class OldTemperatureString(TemperatureString):
 
         t_sensordata = (df_sensordata,)*len(sensorindices)
         
-        with Pool() as p:
+        with Pool(maxtasksperchild=1) as p:
             self.sensors = p.starmap(init_sensor, tuple(zip(sensorindices, t_sensordata)))
             p.close()
             p.join()

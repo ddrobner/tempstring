@@ -4,6 +4,7 @@ import argparse
 import globals
 
 from dateutil import parser as dateparse
+from pandas import to_datetime
 from plotter import Plotting
 from pandas import Timestamp
 
@@ -42,8 +43,8 @@ except:
     globalmanager.setParam({"fill_old": None})
 
 try:
-    offset_starts = list(map(dateparse.parse(args.index_offset_start)))
-    offset_ends = list(map(dateparse.parse, args.index_offset_end))
+    offset_starts = list(map(to_datetime, args.index_offset_start,))
+    offset_ends = list(map(to_datetime, args.index_offset_end))
     globalmanager.setParam({"offset_starts": offset_starts})
     globalmanager.setParam({"offset_ends": offset_ends})
 except:
