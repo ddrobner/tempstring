@@ -4,6 +4,7 @@ import matplotlib.cm as cm
 import pandas as pd
 import numpy as np
 import matplotlib.ticker as ticker
+import gc
 
 from temperaturestring import TemperatureString
 from oldtemperaturestring import OldTemperatureString
@@ -155,22 +156,26 @@ class Plotting:
             # hardcoding depths in cm
             depths = {20:10.2, 16:25, 7:65, 22:105, 24:145, 21:185, 0:225, 23:265, 12:305, 3:345, 13:385, 26:425, 1:465, 9:505, 4:545, 14:585,
                       29:710, 8:835, 5:960, 2:1085, 27:1210, 18:1335, 11:1460, 19:1585, 25:1710, 17:1835, 15:1960, 28:2085, 6:2210, 10:2335}
-            y_labels = [str(round(depths[i]/2.54, 1)) for i in oldstring_indices]
 
         z = [np.resize(l, len(z[0])) for l in z]
         plt.rcParams['pcolor.shading'] = 'nearest'
+
+        # garbage collector
+        gc.collect()
+
         cmap = hax.pcolormesh(np.array(x), np.array(y).T, z, cmap=cm.jet, vmin=vmin, shading='nearest')
 
         if self.globalmanager.getParam("oldstring"):
             # settings tick locations as to not clutter the plot
             tick_locations = [20, 24, 3, 9, 8,18, 17, 10]
             hax.yaxis.set_major_locator(ticker.FixedLocator(tick_locations))
-            hax.set_yticklabels(y_labels)
+            hax.set_yticklabels([round(depths[i]/2.54, 1) for i in tick_locations])
         fmt = pltdates.DateFormatter('%b') if (self.date_to - self.date_from) > pd.Timedelta(3, "m") else pltdates.DateFormatter("%Y-%m-%d")
         hax.xaxis.set_major_formatter(fmt)
         # and using mpl's auto date locators
         hax.xaxis.set_major_locator(pltdates.MonthLocator(bymonthday=3) if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.AutoDateLocator())
-        hax.xaxis.set_minor_locator(pltdates.DayLocator(interval=floor((self.date_from - self.date_to).seconds/31536000)))
+        nyears = floor((self.date_to - self.date_from).days/365)
+        hax.xaxis.set_minor_locator(pltdates.DayLocator(interval=(nyears if nyears > 1 else 1)))
         hax.tick_params(axis="both", which="major", labelsize=14)
         hfig.autofmt_xdate()
         hax.set_xlabel("Date")
