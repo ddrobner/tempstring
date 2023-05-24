@@ -6,7 +6,6 @@ import numpy as np
 import globals
 
 from multiprocessing import Pool
-from multiprocessing import cpu_count
 
 def init_sensor(index: int, sensordata:pd.DataFrame) -> Sensor:
     """Helper function to initialize a Sensor, for use with multiprocessing Pool
@@ -52,8 +51,11 @@ class TemperatureString:
         t_sensordata = (df_sensordata,)*len(sensorindices)
 
         # storing each sensor object in a list
-        with Pool(cpu_count()) as p:
+        with Pool() as p:
             self.sensors = p.starmap(init_sensor, tuple(zip(sensorindices, t_sensordata)))
+            p.close()
+            p.join()
+        del t_sensordata
 
 
     def getSensorDataByIndex(self, index:int) -> pd.DataFrame:

@@ -43,7 +43,11 @@ class OldTemperatureString(TemperatureString):
 
         t_sensordata = (df_sensordata,)*len(sensorindices)
         
-        with Pool(cpu_count()) as p:
+        with Pool() as p:
             self.sensors = p.starmap(init_sensor, tuple(zip(sensorindices, t_sensordata)))
+            p.close()
+            p.join()
+        del t_sensordata
+        del df_sensordata
 
     # everything else here is inherited from TemperatureString

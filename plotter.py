@@ -9,10 +9,18 @@ import gc
 from temperaturestring import TemperatureString
 from oldtemperaturestring import OldTemperatureString
 from multiprocessing import Pool
-from multiprocessing import cpu_count
+from math import ceil
 from math import floor
 from copy import deepcopy
 import globals
+
+
+# pool helper function for massaging into pcolormesh format
+def pcolormesh_prep(stringdata):
+    cur_zdata = stringdata["Temperature"].to_numpy()
+    minm = cur_zdata[cur_zdata != 0].min()
+    index = stringdata["Sensor Index"].to_numpy()[0]
+    return index, cur_zdata, minm 
 
 # TODO fix autolimits on averageplot - will be more work than you expect 
 class Plotting:
@@ -111,8 +119,12 @@ class Plotting:
         l_sensordata = [self.tempstring.getSensorDataByIndex(k)["Temperature"].values for k in indices]
         l_reshapelength = (len(self.tempstring.getSensorDataByIndex(indices[0])["Temperature"]),)*len(l_sensordata)
         # multithread array reshaping since it was slow
-        with Pool(cpu_count()) as p:
+        with Pool() as p:
             shaped_data = p.starmap(np.resize, zip(l_sensordata, l_reshapelength))
+            p.close()
+            p.join()
+        del l_sensordata
+        del l_reshapelength
         for d in shaped_data:
             cmin = d[d != 0].min()
             cmax = d.max()
@@ -142,6 +154,7 @@ class Plotting:
         tempstring = TemperatureString(list(range(0, 21))) if not self.globalmanager.getParam("oldstring") else OldTemperatureString(oldstring_indices)
 
         x = tempstring.getTimes(oldstring_indices[0] if self.globalmanager.getParam("oldstring") else 0).to_numpy()
+        """
         y = []
         z = []
         vmin = np.inf
@@ -150,11 +163,19 @@ class Plotting:
             cur_zdata = d["Temperature"].to_numpy()
             z.append(cur_zdata)        
             vmin = cur_zdata[cur_zdata != 0].min() if cur_zdata[cur_zdata != 0].min() < vmin else vmin 
+        """
+
+
+        with Pool() as p:
+            y, z, mins = zip(*p.map(pcolormesh_prep, tempstring.getStringData()))
+            p.close()
+            p.join()
+        vmin = min(mins)
 
         if self.globalmanager.getParam("oldstring"):
             y = list(range(len(oldstring_indices)))
             # hardcoding depths in cm
-            depths = {20:10.2, 16:25, 7:65, 22:105, 24:145, 21:185, 0:225, 23:265, 12:305, 3:345, 13:385, 26:425, 1:465, 9:505, 4:545, 14:585,
+            depths = {20:10, 16:25, 7:65, 22:105, 24:145, 21:185, 0:225, 23:265, 12:305, 3:345, 13:385, 26:425, 1:465, 9:505, 4:545, 14:585,
                       29:710, 8:835, 5:960, 2:1085, 27:1210, 18:1335, 11:1460, 19:1585, 25:1710, 17:1835, 15:1960, 28:2085, 6:2210, 10:2335}
 
         z = [np.resize(l, len(z[0])) for l in z]
@@ -166,14 +187,15 @@ class Plotting:
         cmap = hax.pcolormesh(np.array(x), np.array(y).T, z, cmap=cm.jet, vmin=vmin, shading='nearest')
 
         if self.globalmanager.getParam("oldstring"):
-            # settings tick locations as to not clutter the plot
-            tick_locations = [20, 24, 3, 9, 8,18, 17, 10]
+            # setting tick locations as to not clutter the plot
+            sensorticklocations = [20, 24, 12, 1, 8, 18, 17, 10]
+            tick_locations = [y[0], y[4], y[8], y[12], y[16], y[20], y[24], y[28]]
             hax.yaxis.set_major_locator(ticker.FixedLocator(tick_locations))
-            hax.set_yticklabels([round(depths[i]/2.54, 1) for i in tick_locations])
+            hax.set_yticklabels([ceil(depths[i]/2.54) for i in sensorticklocations])
         fmt = pltdates.DateFormatter('%b') if (self.date_to - self.date_from) > pd.Timedelta(3, "m") else pltdates.DateFormatter("%Y-%m-%d")
         hax.xaxis.set_major_formatter(fmt)
         # and using mpl's auto date locators
-        hax.xaxis.set_major_locator(pltdates.MonthLocator(bymonthday=3) if (self.date_from - self.date_to) > pd.Timedelta(3, "m") else pltdates.AutoDateLocator())
+        hax.xaxis.set_major_locator(pltdates.MonthLocator(bymonthday=3))
         nyears = floor((self.date_to - self.date_from).days/365)
         hax.xaxis.set_minor_locator(pltdates.DayLocator(interval=(nyears if nyears > 1 else 1)))
         hax.tick_params(axis="both", which="major", labelsize=14)
