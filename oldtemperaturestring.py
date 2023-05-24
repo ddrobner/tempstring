@@ -40,7 +40,7 @@ class OldTemperatureString(TemperatureString):
         gc.collect()
 
         df_sensordata = pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
-        df_sensordata["Timestamp"] = df_sensordata["Timestamp"].apply(pd.Timestamp)
+        df_sensordata["Timestamp"] = pd.to_datetime(df_sensordata["Timestamp"], utc=True)
         # since the idea is that each sensor should only hold the data for itself I have to do this here, otherwise I'd run it for each sensor which is rather inefficient
         starts = self.globalmanager.getParam("offset_starts")
         ends = self.globalmanager.getParam("offset_ends")
@@ -49,7 +49,7 @@ class OldTemperatureString(TemperatureString):
 
         t_sensordata = (df_sensordata,)*len(sensorindices)
         
-        with Pool(maxtasksperchild=1) as p:
+        with Pool() as p:
             self.sensors = p.starmap(init_sensor, tuple(zip(sensorindices, t_sensordata)))
             p.close()
             p.join()

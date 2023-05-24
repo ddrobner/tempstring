@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.ticker as ticker
 import gc
 
+from memory_profiler import profile
 from temperaturestring import TemperatureString
 from oldtemperaturestring import OldTemperatureString
 from multiprocessing import Pool
@@ -146,6 +147,7 @@ class Plotting:
         self.ax.legend(**self.legendparams)
         self.fig.savefig(f"plots/multipleIndexPlot_{self.date_from.date()}_{self.date_to.date()}_indices[{indices[0]}-{indices[-1]}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
     
+    @profile
     def histPlot(self):
         hfig, hax = plt.subplots(figsize=(18, 10))
 
@@ -169,12 +171,11 @@ class Plotting:
         d = deepcopy(tempstring.getStringData())
         del tempstring
         gc.collect()
-        with Pool(maxtasksperchild=1) as p:
+        with Pool() as p:
             y, z, mins = zip(*p.map(pcolormesh_prep, d))
             p.close()
             p.join()
         vmin = min(mins)
-        del tempstring
         del mins
         gc.collect()
 
