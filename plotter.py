@@ -10,7 +10,7 @@ from oldtemperaturestring import OldTemperatureString
 from multiprocessing import Pool
 from multiprocessing import cpu_count
 from math import floor
-from copy import copy
+from copy import deepcopy
 import globals
 
 # TODO fix autolimits on averageplot - will be more work than you expect 
@@ -60,7 +60,7 @@ class Plotting:
         self.ax.plot(np.resize(times, len(temperaturedata)), temperaturedata, color="black", label="New String")
 
         if self.globalmanager.getParam("fill_old") != None:
-            overlay_indices = copy(self.globalmanager.getParam("fill_old"))
+            overlay_indices = deepcopy(self.globalmanager.getParam("fill_old"))
             overlay_indices.sort()
             self.old_overlay_plot(overlay_indices)
             self.ax.set_title(f"Average Temperature Measured By Sensors {indices[0]}-{indices[-1]} With Old String Average of Sensors {', '.join(str(s) for s in overlay_indices)}")
@@ -162,7 +162,9 @@ class Plotting:
         cmap = hax.pcolormesh(np.array(x), np.array(y).T, z, cmap=cm.jet, vmin=vmin, shading='nearest')
 
         if self.globalmanager.getParam("oldstring"):
-            hax.yaxis.set_major_locator(ticker.FixedLocator(y))
+            # settings tick locations as to not clutter the plot
+            tick_locations = [20, 24, 3, 9, 8,18, 17, 10]
+            hax.yaxis.set_major_locator(ticker.FixedLocator(tick_locations))
             hax.set_yticklabels(y_labels)
         fmt = pltdates.DateFormatter('%b') if (self.date_to - self.date_from) > pd.Timedelta(3, "m") else pltdates.DateFormatter("%Y-%m-%d")
         hax.xaxis.set_major_formatter(fmt)
@@ -172,8 +174,8 @@ class Plotting:
         hax.tick_params(axis="both", which="major", labelsize=14)
         hfig.autofmt_xdate()
         hax.set_xlabel("Date")
-        hax.set_ylabel("Depth (in)")
-        hax.set_title("SNO+ Cavity Temperature")
+        hax.set_ylabel("Depth (inches)")
+        hax.set_title("SNO+ Cavity Temperature \u00B0C")
         hax.invert_yaxis()
 
         hfig.colorbar(cmap)
