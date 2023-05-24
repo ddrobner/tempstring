@@ -19,6 +19,8 @@ class OldTemperatureString(TemperatureString):
         # setting up db connection
         dbhandler = DatabaseHandler()
 
+        # creating a mapping of sensor indices (the useful ones) to order in the list
+        # faster than finding the sensor index corresponding to the list index every time, and cleaner to write too
         self.sensormap = dict()
         c = 0
         for i in sensorindices:
