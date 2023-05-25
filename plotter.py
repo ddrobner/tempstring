@@ -102,7 +102,6 @@ class Plotting:
         plotdata = self.tempstring.getSensorDataByIndex(index)["Temperature"]
         self.ax.plot(self.tempstring.getTimes(index), plotdata, color="black")
         self.ax.set_ylim(bottom=plotdata[plotdata != 0].min()-0.1, top=plotdata.max()+0.1)
-        self.ax.legend(**self.legendparams)
         self.fig.savefig(f"plots/indexPlot_{self.date_from.date()}_{self.date_to.date()}_index[{index}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
     
     def compareIndexPlot(self, indices:list) -> None:
