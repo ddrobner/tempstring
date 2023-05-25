@@ -1,7 +1,7 @@
 from temperaturestring import TemperatureString
 from temperaturestring import init_sensor
 from dbhandler import DatabaseHandler
-from multiprocessing import Pool
+from multiprocessing import Pool, Manager
 from dataprocessing import offset_sensor_indices
 from debugtools import memoryprofile
 
@@ -47,13 +47,20 @@ class OldTemperatureString(TemperatureString):
         for t in range(len(starts)):
             df_sensordata = offset_sensor_indices(starts[t], ends[t], df_sensordata)
 
-        t_sensordata = (df_sensordata,)*len(sensorindices)
-        
-        with Pool() as p:
-            self.sensors = p.starmap(init_sensor, tuple(zip(sensorindices, t_sensordata)))
+        with Manager() as mgr:
+            ns = mgr.Namespace()
+            ns.d = df_sensordata
+            p = Pool()
+            self.sensors = p.starmap(init_sensor, [(i, ns) for i in sensorindices])
             p.close()
             p.join()
-        del t_sensordata
+            
+        """
+        with Pool() as p:
+            self.sensors = p.starmap(init_sensor, [()])
+            p.close()
+            p.join()
+        """
         del df_sensordata
         gc.collect()
 

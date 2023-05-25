@@ -6,10 +6,11 @@ import gc
 import numpy as np
 import globals
 
-from multiprocessing import Pool
+from multiprocessing import Pool,Manager
 from debugtools import memoryprofile
 
-def init_sensor(index: int, sensordata:pd.DataFrame) -> Sensor:
+@memoryprofile
+def init_sensor(index: int, namespace) -> Sensor:
     """Helper function to initialize a Sensor, for use with multiprocessing Pool
 
     Args:
@@ -19,7 +20,7 @@ def init_sensor(index: int, sensordata:pd.DataFrame) -> Sensor:
     Returns:
         Sensor: The initialized sensor object 
     """
-    return Sensor(index, sensordata)
+    return Sensor(index, namespace.d)
 
 
 class TemperatureString:
@@ -53,14 +54,14 @@ class TemperatureString:
         df_sensordata =  pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
         df_sensordata["Sensor Index"] = df_sensordata["Sensor Index"].apply(lambda x: x-sensor_offset) 
 
-        t_sensordata = (df_sensordata,)*len(sensorindices)
-
         # storing each sensor object in a list
-        with Pool() as p:
-            self.sensors = p.starmap(init_sensor, tuple(zip(sensorindices, t_sensordata)))
+        with Manager() as mgr:
+            ns = mgr.Namespace()
+            ns.d = df_sensordata
+            p = Pool()
+            p.starmap(init_sensor, [(i, ns) for i in sensorindices])
             p.close()
             p.join()
-        del t_sensordata
         gc.collect()
 
 

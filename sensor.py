@@ -26,6 +26,7 @@ class Sensor:
         self.tempdata = fill_blank_timestamps(self.tempdata)
         # old string has lots of outliers so we discard them
         if globals.globalmanager.getParam("oldstring"): self.tempdata = discard_outliers(self.tempdata, 18)
+        gc.collect()
         
 
     

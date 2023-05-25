@@ -9,7 +9,7 @@ import gc
 from debugtools import memoryprofile
 from temperaturestring import TemperatureString
 from oldtemperaturestring import OldTemperatureString
-from multiprocessing import Pool
+from multiprocessing import Pool, Manager
 from math import ceil
 from math import floor
 from copy import deepcopy
@@ -18,11 +18,11 @@ import globals
 
 # pool helper function for massaging into pcolormesh format
 @memoryprofile
-def pcolormesh_prep(stringdata):
-    cur_zdata = stringdata["Temperature"].to_numpy()
-    minm = cur_zdata[cur_zdata != 0].min()
-    index = stringdata["Sensor Index"].to_numpy()[0]
-    return index, cur_zdata, minm 
+def pcolormesh_prep(ns):
+    minm = ns.d[ns.d != 0].min()
+    index = ns.d["Sensor Index"].to_numpy()[0]
+    gc.collect()
+    return index, ns.d, minm 
 
 # TODO fix autolimits on averageplot - will be more work than you expect 
 class Plotting:
@@ -125,9 +125,6 @@ class Plotting:
             shaped_data = p.starmap(np.resize, zip(l_sensordata, l_reshapelength))
             p.close()
             p.join()
-        del l_sensordata
-        del l_reshapelength
-        gc.collect()
         for d in shaped_data:
             cmin = d[d != 0].min()
             cmax = d.max()
@@ -172,8 +169,11 @@ class Plotting:
         d = deepcopy(tempstring.getStringData())
         del tempstring
         gc.collect()
-        with Pool() as p:
-            y, z, mins = zip(*p.map(pcolormesh_prep, d))
+        with Manager() as mgr:
+            ns = mgr.Namespace()
+            ns.d = d
+            p = Pool()
+            y, z, mins = zip(*p.map(pcolormesh_prep, ns))
             p.close()
             p.join()
         vmin = min(mins)

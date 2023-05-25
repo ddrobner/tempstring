@@ -5,7 +5,6 @@ import globals
 
 from dateutil import parser as dateparse
 from pandas import to_datetime
-from plotter import Plotting
 from pandas import Timestamp
 
 # argparse setup
@@ -38,6 +37,9 @@ globalmanager.setParam({"oldstring": args.old_string})
 globalmanager.setParam({"tsoffset": Timestamp(year=2023, month=3, day=16)})
 globalmanager.setParam({"debug": args.debug})
 
+# TODO fix this, this is bad
+# the plotter module importing properly requires the debug flag to be set because of the decorators
+from plotter import Plotting
 
 try:
     globalmanager.setParam({"fill_old": list(map(int, args.fill_old))})
