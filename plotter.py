@@ -9,7 +9,7 @@ import gc
 from debugtools import memoryprofile
 from temperaturestring import TemperatureString
 from oldtemperaturestring import OldTemperatureString
-from multiprocessing import Pool, Manager
+from multiprocessing import Pool
 from math import ceil
 from math import floor
 from copy import deepcopy
@@ -19,7 +19,7 @@ import globals
 # pool helper function for massaging into pcolormesh format
 @memoryprofile
 def pcolormesh_prep(stringdata):
-    minm = stringdata[stringdata != 0].min()
+    minm = stringdata["Temperature"][stringdata["Temperature"] != 0].min()
     index = stringdata["Sensor Index"].to_numpy()[0]
     gc.collect()
     return index, stringdata["Temperature"].to_numpy(), minm 
@@ -201,7 +201,7 @@ class Plotting:
         del y
         del z
         gc.collect()
-        fmt = pltdates.DateFormatter('%b') if (self.date_to - self.date_from) > pd.Timedelta(3, "m") else pltdates.DateFormatter("%Y-%m-%d")
+        fmt = pltdates.DateFormatter('%Y-%m')
         hax.xaxis.set_major_formatter(fmt)
         # and using mpl's auto date locators
         hax.xaxis.set_major_locator(pltdates.MonthLocator(bymonthday=3))

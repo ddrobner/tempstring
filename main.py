@@ -66,6 +66,7 @@ for k,v in vars(args).items():
             indices = list(map(int, args.average))
         else:
             indices = list(range(int(args.average[0]), int(args.average[1])+1))
+        plotter.averagePlot(indices)
     elif k == "index" and args.index != None:
         plotter.indexPlot(int(args.index))
     elif k == "multiple_index" and args.multiple_index != None:

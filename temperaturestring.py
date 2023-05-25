@@ -59,7 +59,7 @@ class TemperatureString:
             ns = mgr.Namespace()
             ns.d = df_sensordata
             p = Pool()
-            p.starmap(init_sensor, [(i, ns) for i in sensorindices])
+            self.sensors = p.starmap(init_sensor, [(i, ns) for i in sensorindices])
             p.close()
             p.join()
         gc.collect()
