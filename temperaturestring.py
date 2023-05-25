@@ -7,6 +7,7 @@ import numpy as np
 import globals
 
 from multiprocessing import Pool
+from debugtools import memoryprofile
 
 def init_sensor(index: int, sensordata:pd.DataFrame) -> Sensor:
     """Helper function to initialize a Sensor, for use with multiprocessing Pool
@@ -24,6 +25,7 @@ def init_sensor(index: int, sensordata:pd.DataFrame) -> Sensor:
 class TemperatureString:
     """An object encapsulating all of the sensors, to make interfacing with any number of them easier
     """
+    @memoryprofile
     def __init__(self, sensorindices: list=list(range(0, 28))) -> None:
         """Constructor for TemperatureString
 

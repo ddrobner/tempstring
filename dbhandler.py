@@ -3,12 +3,12 @@ from psycopg2 import connect
 import datetime
 import globals
 
-from memory_profiler import profile
+from debugtools import memoryprofile
 
 class DatabaseHandler:
     """Handles interactions with the database
     """
-    @profile
+    @memoryprofile
     def __init__(self):
         """Constructor for DatabaseHandler
         """
@@ -34,7 +34,7 @@ class DatabaseHandler:
         self.cur = self.db_conn.cursor()
 
     # gets the data for all sensors from the database
-    @profile
+    @memoryprofile
     def getall(self, date_from: datetime.date, date_to: datetime.date, oldstring: bool=False) -> list:
         """Fetches all data from the database in a given time
 
@@ -52,7 +52,7 @@ class DatabaseHandler:
         return self.cur.fetchall() 
 
     # gets the data for a specific sensor from the database
-    @profile
+    @memoryprofile
     def getsensor(self, date_from:datetime.date, date_to: datetime.date, sensoridx:int) -> list:
         """Fetches data for a specific sensor from the database for a given timeframe
 

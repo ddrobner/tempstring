@@ -3,7 +3,7 @@ from temperaturestring import init_sensor
 from dbhandler import DatabaseHandler
 from multiprocessing import Pool
 from dataprocessing import offset_sensor_indices
-from memory_profiler import profile
+from debugtools import memoryprofile
 
 import globals
 import pandas as pd
@@ -14,7 +14,7 @@ class OldTemperatureString(TemperatureString):
     
     # overriding the constructor here to do old string specific processing
     # going to have default arguments for date from and date to here, since we want this to fill in missing data
-    @profile
+    @memoryprofile
     def __init__(self, sensorindices: list, fill: bool=False, date_from: pd.Timestamp=None, date_to: pd.Timestamp=None):
         # pulling in global variables
         self.globalmanager = globals.globalmanager 

@@ -25,6 +25,7 @@ parser.add_argument('--fill-old', nargs="+", help="Fill in missing data with old
 parser.add_argument('--heatmap', action='store_true')
 parser.add_argument('--index-offset-start', nargs="+", help="Index shifting start points, for when dealing with the old string", default=None)
 parser.add_argument('--index-offset-end', nargs="+", help="Index offset endpoints, for when dealing with the old string", default=None)
+parser.add_argument('--debug', action="store_true", help="Enables tools used for debugging the program")
 
 args = parser.parse_args()
 
@@ -35,6 +36,7 @@ globalmanager.setParam({"date_from": dateparse.parse(args.date_from)})
 globalmanager.setParam({"date_to": dateparse.parse(args.date_to)})
 globalmanager.setParam({"oldstring": args.old_string})
 globalmanager.setParam({"tsoffset": Timestamp(year=2023, month=3, day=16)})
+globalmanager.setParam({"debug": args.debug})
 
 
 try:

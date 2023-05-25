@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.ticker as ticker
 import gc
 
-from memory_profiler import profile
+from debugtools import memoryprofile
 from temperaturestring import TemperatureString
 from oldtemperaturestring import OldTemperatureString
 from multiprocessing import Pool
@@ -17,6 +17,7 @@ import globals
 
 
 # pool helper function for massaging into pcolormesh format
+@memoryprofile
 def pcolormesh_prep(stringdata):
     cur_zdata = stringdata["Temperature"].to_numpy()
     minm = cur_zdata[cur_zdata != 0].min()
@@ -147,7 +148,7 @@ class Plotting:
         self.ax.legend(**self.legendparams)
         self.fig.savefig(f"plots/multipleIndexPlot_{self.date_from.date()}_{self.date_to.date()}_indices[{indices[0]}-{indices[-1]}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
     
-    @profile
+    @memoryprofile
     def histPlot(self):
         hfig, hax = plt.subplots(figsize=(18, 10))
 

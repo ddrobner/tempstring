@@ -4,12 +4,12 @@ import gc
 
 from dataprocessing import fill_blank_timestamps
 from dataprocessing import discard_outliers
-from memory_profiler import profile
+from debugtools import memoryprofile
 
 class Sensor:
     """Object which stores the data for a single sensor, don't use outside of the TemperatureString class
     """
-    @profile
+    @memoryprofile
     def __init__(self, index:int, temperaturedata:pd.DataFrame):
         """Constructor for Sensor
 
