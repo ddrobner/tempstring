@@ -18,11 +18,12 @@ import globals
 
 # pool helper function for massaging into pcolormesh format
 @memoryprofile
-def pcolormesh_prep(ns):
-    minm = ns.d[ns.d != 0].min()
-    index = ns.d["Sensor Index"].to_numpy()[0]
+def pcolormesh_prep(stringdata):
+    minm = stringdata[stringdata != 0].min()
+    index = stringdata["Sensor Index"].to_numpy()[0]
     gc.collect()
-    return index, ns.d, minm 
+    return index, stringdata["Temperature"].to_numpy(), minm 
+
 
 # TODO fix autolimits on averageplot - will be more work than you expect 
 class Plotting:
@@ -165,15 +166,14 @@ class Plotting:
             z.append(cur_zdata)        
             vmin = cur_zdata[cur_zdata != 0].min() if cur_zdata[cur_zdata != 0].min() < vmin else vmin 
         """
-
-        d = deepcopy(tempstring.getStringData())
+        # making a copy of the string data and then deleting the tempstring object
+        # frees up a lot of memory
+        d = tempstring.getStringData()
         del tempstring
         gc.collect()
-        with Manager() as mgr:
-            ns = mgr.Namespace()
-            ns.d = d
-            p = Pool()
-            y, z, mins = zip(*p.map(pcolormesh_prep, ns))
+
+        with Pool() as p:
+            y, z, mins = zip(*p.map(pcolormesh_prep, d))
             p.close()
             p.join()
         vmin = min(mins)
