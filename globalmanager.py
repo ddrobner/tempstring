@@ -5,11 +5,29 @@ class GlobalManager:
     def __init__(self):
         self.params = dict()
 
-    def getParam(self, param) -> dict:
+    def getParam(self, param: str) -> any:
+        """Gets a global parameter
+
+        Args:
+            param (str): The ID of the parameter
+
+        Returns:
+            any: The global variable 
+        """
         return self.params[param]
 
     def setParam(self, param: dict) -> None:
+        """Sets a global parameter
+
+        Args:
+            param (dict): A dictionary with the parameter names and values to set 
+        """
         self.params.update(param)
 
-    def listParams(self) -> str:
-        return str(self.params)
+    def listParams(self) -> dict:
+        """Gets all parameters
+
+        Returns:
+            dict: A dictionary containing the global parameters
+        """
+        return self.params

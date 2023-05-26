@@ -26,6 +26,16 @@ def fill_blank_timestamps(dataframe: pd.DataFrame) -> pd.DataFrame:
 
 @memoryprofile
 def offset_sensor_indices(ts_start: pd.Timestamp, ts_end: pd.Timestamp, dataframe: pd.DataFrame) -> pd.DataFrame:
+    """Sensor index offset for the cavity string
+
+    Args:
+        ts_start (pd.Timestamp): Start of the time range to offset
+        ts_end (pd.Timestamp): End of the time range to offset 
+        dataframe (pd.DataFrame): The data we are working with
+
+    Returns:
+        pd.DataFrame: Original data with offset indices
+    """
     # copying for the same reason as above
     df = dataframe
     for t in range(len(df["Sensor Index"])):
@@ -34,5 +44,14 @@ def offset_sensor_indices(ts_start: pd.Timestamp, ts_end: pd.Timestamp, datafram
     return df
 
 @memoryprofile
-def discard_outliers(data: pd.DataFrame, ceiling) -> pd.DataFrame:
-    return data[data["Temperature"] < ceiling].reset_index()
+def discard_outliers(data: pd.DataFrame, ceiling: float) -> pd.DataFrame:
+    """Discards outlying points
+
+    Args:
+        data (pd.DataFrame): The data to be processed`
+        ceiling (float): The maximum value to not be filtered 
+
+    Returns:
+        pd.DataFrame: The Filtered data 
+    """
+    return data[data["Temperature"] <= ceiling].reset_index()

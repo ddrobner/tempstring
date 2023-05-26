@@ -41,6 +41,7 @@ class DatabaseHandler:
         Args:
             date_from (datetime.date): Starting date for data
             date_to (datetime.date): Ending date for data
+            oldstring (bool): Flag for the old or new temperature string
 
         Returns:
             list: List containing the fetched data from the SQL server
@@ -59,7 +60,7 @@ class DatabaseHandler:
         Args:
             date_from (datetime.date): Starting date for data
             date_to (datetime.date): Ending date for data
-            sensoridx (int): Index of temperature sensor from 0 to 27 TODO verify this
+            sensoridx (int): Index of temperature sensor
 
         Returns:
             list: Fetched data for the sensor

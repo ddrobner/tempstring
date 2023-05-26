@@ -18,11 +18,19 @@ import globals
 
 # pool helper function for massaging into pcolormesh format
 @memoryprofile
-def pcolormesh_prep(stringdata):
-    minm = stringdata["Temperature"][stringdata["Temperature"] != 0].min()
-    index = stringdata["Sensor Index"].to_numpy()[0]
+def pcolormesh_prep(sensordata: pd.DataFrame) -> tuple[int, np.ndarray, np.float64]:
+    """Prepares data for pcolormesh, in a function to multithread
+
+    Args:
+        stringdata (pd.DataFrame): The data for the sensor we are prepping
+
+    Returns:
+        tuple[int, np.ndarray, np.float64]: The sensor index, data as a numpy array, and the minimum nonzero value for that sensor
+    """
+    minm = sensordata["Temperature"][sensordata["Temperature"] != 0].min()
+    index = sensordata["Sensor Index"].to_numpy()[0]
     gc.collect()
-    return index, stringdata["Temperature"].to_numpy(), minm 
+    return index, sensordata["Temperature"].to_numpy(), minm 
 
 
 # TODO fix autolimits on averageplot - will be more work than you expect 
@@ -30,6 +38,8 @@ class Plotting:
     """Module which handles all of the plotting of the data
     """
     def __init__(self):
+        """Object which encapsulates nearly the entire program, and is the top level interface for plotting
+        """
         # pull in our global variables
         self.globalmanager = globals.globalmanager
         self.date_from = self.globalmanager.getParam("date_from") 
@@ -147,6 +157,9 @@ class Plotting:
     
     @memoryprofile
     def histPlot(self):
+        """Produces a heatmap plot for the entire string which we are plotting
+        """
+
         hfig, hax = plt.subplots(figsize=(18, 10))
 
         # oldstring indices are screwed up, going to hardcode them in this list
@@ -224,7 +237,12 @@ class Plotting:
         hfig.savefig(f"plots/heatmap_{self.date_from.date()}-{self.date_to.date()}{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
 
 
-    def old_overlay_plot(self, indices):
+    def old_overlay_plot(self, indices: list):
+        """Overlays cavity string data on top of the PSUP string
+
+        Args:
+            indices (list): The indices which we are interested in overlaying 
+        """
         old_tmpstring = OldTemperatureString(indices)
         oldplot_data = old_tmpstring.indicesMean(indices)
         self.ax.plot(np.resize(old_tmpstring.getTimes(indices[0]).to_numpy(), len(oldplot_data)), oldplot_data, color="red", label="Old String", alpha=0.75)

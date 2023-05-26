@@ -31,8 +31,7 @@ class TemperatureString:
         """Constructor for TemperatureString
 
         Args:
-            start_date (datetime.date): Data start date
-            end_date (datetime.date): Data end date
+            sensorindices (list): List of sensor indices to init 
         """
         databasehandler = DatabaseHandler()
 

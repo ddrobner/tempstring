@@ -9,8 +9,8 @@ from pandas import Timestamp
 
 # argparse setup
 parser = argparse.ArgumentParser(
-    prog="PSUP Temperature String Analysis",
-    description="Gets PSUP temperature string data and spits out plots"
+    prog="SNO+ Temperature String Analysis",
+    description="Gets temperature string data and spits out plots"
 )
 
 # self-explanatory
@@ -57,7 +57,7 @@ except:
 
 plotter = Plotting()
 
-# couldn't use a switch here because it would run things multiple times when using store true
+# There should be a better way of doing this but it works fine for the moment
 for k,v in vars(args).items():
     if k == "heatmap" and args.heatmap:
         plotter.histPlot()

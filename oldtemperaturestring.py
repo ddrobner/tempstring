@@ -11,7 +11,9 @@ import gc
 
 # inherits from TemperatureString
 class OldTemperatureString(TemperatureString):
-    
+    """Class inheriting from TemperatureString changing some processing done in
+    the constructor that is specific to the cavity temperature string
+    """
     # overriding the constructor here to do old string specific processing
     # going to have default arguments for date from and date to here, since we want this to fill in missing data
     @memoryprofile
