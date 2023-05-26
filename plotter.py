@@ -192,10 +192,19 @@ class Plotting:
 
         if self.globalmanager.getParam("oldstring"):
             # setting tick locations as to not clutter the plot
-            sensorticklocations = [20, 24, 12, 1, 8, 18, 17, 10]
-            tick_locations = [y[0], y[4], y[8], y[12], y[16], y[20], y[24], y[28]]
+            sensorticklocations = [20, 16, 24, 12, 1, 8, 18, 17, 10]
+            tick_locations = [y[0], y[1], y[4], y[8], y[12], y[16], y[20], y[24], y[28]]
             hax.yaxis.set_major_locator(ticker.FixedLocator(tick_locations))
-            hax.set_yticklabels([ceil(depths[i]/2.54) for i in sensorticklocations])
+            ticklabels = [ceil(depths[i]/2.54) for i in sensorticklocations]
+            ticklabels[0] = str(ticklabels[0]) + " (Air)"
+            ticklabels[1] = str(ticklabels[1]) + " (Surface Water)"
+            ticklabels[-1] = str(ticklabels[-1]) + '\n (~43" Above Cavity Floor)'
+            hax.set_yticklabels(ticklabels)
+            hax.set_ylabel("Depth (inches)")
+            hax.invert_yaxis()
+        else:
+            hax.set_ylabel("Sensor")
+            hax.yaxis.set_major_locator(ticker.FixedLocator(y))
         del x
         del y
         del z
@@ -209,9 +218,7 @@ class Plotting:
         hax.tick_params(axis="both", which="major", labelsize=14)
         hfig.autofmt_xdate()
         hax.set_xlabel("Date")
-        hax.set_ylabel("Depth (inches)")
-        hax.set_title("SNO+ Cavity Temperature (\u00B0C)")
-        hax.invert_yaxis()
+        hax.set_title(f"SNO+ {'cavity' if self.globalmanager.getParam('oldstring') else 'PSUP'} Temperature (\u00B0C)")
 
         hfig.colorbar(cmap)
         hfig.savefig(f"plots/heatmap_{self.date_from.date()}-{self.date_to.date()}{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
