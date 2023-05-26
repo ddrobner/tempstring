@@ -2,13 +2,15 @@ from sensor import Sensor
 from dbhandler import DatabaseHandler
 
 import pandas as pd
+import gc
 import numpy as np
 import globals
 
-from multiprocessing import Pool
-from multiprocessing import cpu_count
+from multiprocessing import Pool,Manager
+from debugtools import memoryprofile
 
-def init_sensor(index: int, sensordata:pd.DataFrame) -> Sensor:
+@memoryprofile
+def init_sensor(index: int, namespace) -> Sensor:
     """Helper function to initialize a Sensor, for use with multiprocessing Pool
 
     Args:
@@ -18,12 +20,13 @@ def init_sensor(index: int, sensordata:pd.DataFrame) -> Sensor:
     Returns:
         Sensor: The initialized sensor object 
     """
-    return Sensor(index, sensordata)
+    return Sensor(index, namespace.d)
 
 
 class TemperatureString:
     """An object encapsulating all of the sensors, to make interfacing with any number of them easier
     """
+    @memoryprofile
     def __init__(self, sensorindices: list=list(range(0, 28))) -> None:
         """Constructor for TemperatureString
 
@@ -46,14 +49,20 @@ class TemperatureString:
         sensor_offset = 30
 
         sensordata = databasehandler.getall(self.globalmanager.getParam("date_from"), self.globalmanager.getParam("date_to"))
+        # getting rid of database handler once we get the data
+        del databasehandler
         df_sensordata =  pd.DataFrame(sensordata, columns=["Timestamp", "Sensor Index", "Temperature"])
         df_sensordata["Sensor Index"] = df_sensordata["Sensor Index"].apply(lambda x: x-sensor_offset) 
 
-        t_sensordata = (df_sensordata,)*len(sensorindices)
-
         # storing each sensor object in a list
-        with Pool(cpu_count()) as p:
-            self.sensors = p.starmap(init_sensor, tuple(zip(sensorindices, t_sensordata)))
+        with Manager() as mgr:
+            ns = mgr.Namespace()
+            ns.d = df_sensordata
+            p = Pool()
+            self.sensors = p.starmap(init_sensor, [(i, ns) for i in sensorindices])
+            p.close()
+            p.join()
+        gc.collect()
 
 
     def getSensorDataByIndex(self, index:int) -> pd.DataFrame:

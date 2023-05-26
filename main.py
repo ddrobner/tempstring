@@ -4,7 +4,7 @@ import argparse
 import globals
 
 from dateutil import parser as dateparse
-from plotter import Plotting
+from pandas import to_datetime
 from pandas import Timestamp
 
 # argparse setup
@@ -21,6 +21,10 @@ parser.add_argument('--index', help="Plot the temperature for a given index", de
 parser.add_argument('--multiple-index', help="Plot multiple sensors in one plot", default=None, nargs='+', metavar=("INDEX_LOW", "INDEX_HIGH"))
 parser.add_argument('--old-string', action='store_true')
 parser.add_argument('--fill-old', nargs="+", help="Fill in missing data with old string data", metavar="FILL_INDICES", default=None)
+parser.add_argument('--heatmap', action='store_true')
+parser.add_argument('--index-offset-start', nargs="+", help="Index shifting start points, for when dealing with the old string", default=None)
+parser.add_argument('--index-offset-end', nargs="+", help="Index offset endpoints, for when dealing with the old string", default=None)
+parser.add_argument('--debug', action="store_true", help="Enables tools used for debugging the program")
 
 args = parser.parse_args()
 
@@ -31,30 +35,44 @@ globalmanager.setParam({"date_from": dateparse.parse(args.date_from)})
 globalmanager.setParam({"date_to": dateparse.parse(args.date_to)})
 globalmanager.setParam({"oldstring": args.old_string})
 globalmanager.setParam({"tsoffset": Timestamp(year=2023, month=3, day=16)})
+globalmanager.setParam({"debug": args.debug})
+
+# TODO fix this, this is bad
+# the plotter module importing properly requires the debug flag to be set because of the decorators
+from plotter import Plotting
 
 try:
     globalmanager.setParam({"fill_old": list(map(int, args.fill_old))})
 except:
     globalmanager.setParam({"fill_old": None})
 
+try:
+    offset_starts = list(map(to_datetime, args.index_offset_start,))
+    offset_ends = list(map(to_datetime, args.index_offset_end))
+    globalmanager.setParam({"offset_starts": offset_starts})
+    globalmanager.setParam({"offset_ends": offset_ends})
+except:
+    globalmanager.setParam({"offset_starts": []})
+    globalmanager.setParam({"offset_ends": []})
+
 plotter = Plotting()
 
-# control flow, iterates over the arguments and checks which we passed using a switch
-for k, v in vars(args).items():
-    match v:
-        case None:
-            pass
-        case args.index:
-            plotter.indexPlot(int(args.index))
-        case args.multiple_index:
-            if len(args.multiple_index) > 2:
-                indices = list(map(int, args.multiple_index))
-            else:
-                indices = list(range(int(args.multiple_index[0]), int(args.multiple_index[1]) + 1))
-            plotter.compareIndexPlot(indices)
-        case args.average:
-            if len(args.average) > 2:
-                indices = list(map(int, args.average))
-            else:
-                indices = list(range(int(args.average[0]), int(args.average[1])+1))
-            plotter.averagePlot(indices)
+# couldn't use a switch here because it would run things multiple times when using store true
+for k,v in vars(args).items():
+    if k == "heatmap" and args.heatmap:
+        plotter.histPlot()
+    elif k == "average" and args.average != None:
+        if len(args.average) > 2:
+            indices = list(map(int, args.average))
+        else:
+            indices = list(range(int(args.average[0]), int(args.average[1])+1))
+        plotter.averagePlot(indices)
+    elif k == "index" and args.index != None:
+        plotter.indexPlot(int(args.index))
+    elif k == "multiple_index" and args.multiple_index != None:
+        if len(args.multiple_index) > 2:
+            indices = list(map(int, args.multiple_index))
+        else:
+            indices = list(range(int(args.multiple_index[0]), int(args.multiple_index[1]) + 1))
+        plotter.compareIndexPlot(indices)
+    
