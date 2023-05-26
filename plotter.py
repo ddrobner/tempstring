@@ -231,7 +231,7 @@ class Plotting:
         hax.tick_params(axis="both", which="major", labelsize=14)
         hfig.autofmt_xdate()
         hax.set_xlabel("Date")
-        hax.set_title(f"SNO+ {'cavity' if self.globalmanager.getParam('oldstring') else 'PSUP'} Temperature (\u00B0C)")
+        hax.set_title(f"SNO+ {'Cavity' if self.globalmanager.getParam('oldstring') else 'PSUP'} Temperature (\u00B0C)")
 
         hfig.colorbar(cmap)
         hfig.savefig(f"plots/heatmap_{self.date_from.date()}-{self.date_to.date()}{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}.png", bbox_inches='tight')
