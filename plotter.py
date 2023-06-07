@@ -85,7 +85,8 @@ class Plotting:
             overlay_indices = deepcopy(self.globalmanager.getParam("fill_old"))
             overlay_indices.sort()
             self.old_overlay_plot(overlay_indices)
-            self.ax.set_title(f"Average Temperature Measured By Sensors {indices[0]}-{indices[-1]} With Old String Average of Sensors {', '.join(str(s) for s in overlay_indices)}")
+            sOldidx = [str(s) for s in overlay_indices]
+            self.ax.set_title(f"Average Temperature Measured By Sensors {indices[0]}-{indices[-1]} \n With Old String Average of Sensors {', and '.join((', '.join(sOldidx[:-1]),sOldidx[-1]))}")
             self.ax.legend(**self.overlaylegendparams)
         else:
             self.ax.set_title(f"Average Temperature Measured By Sensors {f'{indices[0]}-{indices[-1]}' if not self.globalmanager.getParam('oldstring') else ', '.join(str(i) for i in indices) + ' on the Old String'}")
@@ -97,7 +98,7 @@ class Plotting:
         # going to get the argmin and shift it by some amount to take a point where they're all actual data
         # that was the plan at least, will have to come back to this
         # I concede on this one, going to eventually add a plotoptions argument to set the limits
-        self.ax.set_ylim(bottom=11, top=(temperaturedata.max() + 0.1))
+        self.ax.set_ylim(bottom=10.8, top=(temperaturedata.max() + 0.1))
         self.fig.savefig(f"plots/meanPlot_{self.date_from.date()}_{self.date_to.date()}_index[{indices[0]}-{indices[-1]}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}{'_fill_old' if self.globalmanager.getParam('fill_old') != None else ''}.png", bbox_inches='tight')
 
     def indexPlot(self, index: int) -> None:
