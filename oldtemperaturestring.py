@@ -2,7 +2,7 @@ from temperaturestring import TemperatureString
 from temperaturestring import init_sensor
 from dbhandler import DatabaseHandler
 from multiprocessing import Pool, Manager
-from dataprocessing import offset_sensor_indices
+from dataprocessing import offset_sensor_indices, discard_outliers
 from debugtools import memoryprofile
 
 import globals
@@ -33,10 +33,11 @@ class OldTemperatureString(TemperatureString):
             c += 1
 
         # get different data depending upon if filling or not
-        if fill:
-            sensordata = dbhandler.getall(date_from, date_to, True)
-        else:
-            sensordata = dbhandler.getall(self.globalmanager.getParam("date_from"), self.globalmanager.getParam("date_to"), True)
+        #if fill:
+        #    sensordata = dbhandler.getall(date_from, date_to, True)
+        #else:
+        sensordata = dbhandler.getall(self.globalmanager.getParam("date_from"), self.globalmanager.getParam("date_to"), True)
+        
 
         del dbhandler
         gc.collect()
@@ -48,6 +49,7 @@ class OldTemperatureString(TemperatureString):
         ends = self.globalmanager.getParam("offset_ends")
         for t in range(len(starts)):
             df_sensordata = offset_sensor_indices(starts[t], ends[t], df_sensordata)
+        if fill: df_sensordata = discard_outliers(df_sensordata, globals.globalmanager.getParam("outlier_threshold"))
 
         with Manager() as mgr:
             ns = mgr.Namespace()

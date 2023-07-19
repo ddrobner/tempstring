@@ -27,6 +27,8 @@ if __name__ == "__main__":
     parser.add_argument('--index-offset-start', nargs="+", help="Index shifting start points, for when dealing with the cavity string", default=None)
     parser.add_argument('--index-offset-end', nargs="+", help="Index offset endpoints, for when dealing with the cavity string", default=None)
     parser.add_argument('--debug', action="store_true", help="Enables tools used for debugging the program")
+    parser.add_argument('--outlier-threshold', help="Discard all values above the threshold", default=18)
+    parser.add_argument('--average-min', help='Set plot minimum for average plots', default=0)
 
     args = parser.parse_args()
 
@@ -43,10 +45,13 @@ if __name__ == "__main__":
     # the plotter module importing properly requires the debug flag to be set because of the decorators
     from plotter import Plotting
 
+
     try:
         globalmanager.setParam({"fill_old": list(map(int, args.fill_old))})
+        globalmanager.setParam({"outlier_threshold": float(args.outlier_threshold)})
     except:
         globalmanager.setParam({"fill_old": None})
+        globalmanager.setParam({'outlier_threshold': 99999.0})
 
     try:
         offset_starts = list(map(to_datetime, args.index_offset_start,))

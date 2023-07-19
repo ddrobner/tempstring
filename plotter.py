@@ -98,7 +98,7 @@ class Plotting:
         # going to get the argmin and shift it by some amount to take a point where they're all actual data
         # that was the plan at least, will have to come back to this
         # I concede on this one, going to eventually add a plotoptions argument to set the limits
-        self.ax.set_ylim(bottom=10.8, top=(temperaturedata.max() + 0.1))
+        self.ax.set_ylim(bottom=12, top=(temperaturedata.max() + 0.1))
         self.fig.savefig(f"plots/meanPlot_{self.date_from.date()}_{self.date_to.date()}_index[{indices[0]}-{indices[-1]}]{'_oldstring' if self.globalmanager.getParam('oldstring') else ''}{'_fill_old' if self.globalmanager.getParam('fill_old') != None else ''}.png", bbox_inches='tight')
 
     def indexPlot(self, index: int) -> None:
@@ -244,6 +244,6 @@ class Plotting:
         Args:
             indices (list): The indices which we are interested in overlaying 
         """
-        old_tmpstring = OldTemperatureString(indices)
+        old_tmpstring = OldTemperatureString(indices, fill=True)
         oldplot_data = old_tmpstring.indicesMean(indices)
         self.ax.plot(np.resize(old_tmpstring.getTimes(indices[0]).to_numpy(), len(oldplot_data)), oldplot_data, color="red", label="Old String", alpha=0.75)
